@@ -14,16 +14,16 @@ root = ET.Element("Datos");
 # ---------------------------------------------------
 
 puestosCatalogo = [
-    {"Id": "1", "Nombre": "Cajero", "SalarioxHora": "11.00"},
-    {"Id": "2", "Nombre": "Camarero", "SalarioxHora": "10.00"},
-    {"Id": "3", "Nombre": "Cuidador", "SalarioxHora": "13.50"},
-    {"Id": "4", "Nombre": "Conductor", "SalarioxHora": "15.00"},
-    {"Id": "5", "Nombre": "Asistente", "SalarioxHora": "11.00"},
-    {"Id": "6", "Nombre": "Recepcionista", "SalarioxHora": "12.00"},
-    {"Id": "7", "Nombre": "Fontanero", "SalarioxHora": "13.00"},
-    {"Id": "8", "Nombre": "Niñera", "SalarioxHora": "12.00"},
-    {"Id": "9", "Nombre": "Conserje", "SalarioxHora": "11.00"},
-    {"Id": "10", "Nombre": "Albañil", "SalarioxHora": "10.50"},
+    {"Nombre": "Cajero", "SalarioxHora": "11.00"},
+    {"Nombre": "Camarero", "SalarioxHora": "10.00"},
+    {"Nombre": "Cuidador", "SalarioxHora": "13.50"},
+    {"Nombre": "Conductor", "SalarioxHora": "15.00"},
+    {"Nombre": "Asistente", "SalarioxHora": "11.00"},
+    {"Nombre": "Recepcionista", "SalarioxHora": "12.00"},
+    {"Nombre": "Fontanero", "SalarioxHora": "13.00"},
+    {"Nombre": "Niñera", "SalarioxHora": "12.00"},
+    {"Nombre": "Conserje", "SalarioxHora": "11.00"},
+    {"Nombre": "Albañil", "SalarioxHora": "10.50"},
 ]
 
 tiposEventoCatalogo = [
@@ -52,10 +52,36 @@ tiposMovimientosCatalogo = [
     {"Id": "6", "Nombre": "Reversion de Credito", "TipoAccion": "Debito"},
 ]
 
+usuariosCatalogo = [
+    {"Id": "1", "Nombre": "UsuarioScripts", "Pass": ")*2LnSr^lk"},
+    {"Id": "2", "Nombre": "David", "Pass": "232rr^k"},
+    {"Id": "3", "Nombre": "Alejandro", "Pass": "test"},
+    {"Id": "4", "Nombre": "Esteban", "Pass": "contrasena"},
+    {"Id": "5", "Nombre": "Daniel", "Pass": "himB9Dzd%_"},
+    {"Id": "6", "Nombre": "Alex", "Pass": "24himAzzd%_65"},
+    {"Id": "7", "Nombre": "Usuario No Valido", "Pass": "NoSoyValido"}
+]
+
+erroresCatalogo = [
+    {"Codigo": "50001", "Descripcion": "Username no existe"},
+    {"Codigo": "50002", "Descripcion": "Password no existe"},
+    {"Codigo": "50003", "Descripcion": "Login deshabilitado"},
+    {"Codigo": "50004", "Descripcion": "Empleado con ValorDocumentoIdentidad ya existe en inserción"},
+    {"Codigo": "50005", "Descripcion": "Empleado con mismo nombre ya existe en inserción"},
+    {"Codigo": "50006", "Descripcion": "Empleado con ValorDocumentoIdentidad ya existe en actualizacion"},
+    {"Codigo": "50007", "Descripcion": "Empleado con mismo nombre ya existe en actualización"},
+    {"Codigo": "50008", "Descripcion": "Error de base de datos"},
+    {"Codigo": "50009", "Descripcion": "Nombre de empleado no alfabético"},
+    {"Codigo": "50010", "Descripcion": "Valor de documento de identidad no alfabético"},
+    {"Codigo": "50011", "Descripcion": "Monto del movimiento rechazado pues si se aplicar el saldo seria negativo."},
+]
+
 catalogos = [
     ("Puestos","Puesto",puestosCatalogo),
     ("TiposEvento","TipoEvento",tiposEventoCatalogo),
     ("TiposMovimientos","TipoMovimiento", tiposMovimientosCatalogo),
+    ("Usuarios","usuario", usuariosCatalogo),
+    ("Error","errorCodigo", erroresCatalogo)
 ]
 
 for contenedorTag, itemTag, data in catalogos:
@@ -64,8 +90,79 @@ for contenedorTag, itemTag, data in catalogos:
         # 'item' es un dict; sus claves se vuelven atributos del nodo
         ET.SubElement(contenedorElem, itemTag, item)
 
+# ---------------------------------------------------
+#  catalogo de empleados para pruebas
+# ---------------------------------------------------
+
+numEmpleados = 20
+empleados_elem = ET.SubElement(root, "Empleados")
+empleados = []                 
+empleados_doc_ids = set()      # unicidad del documento
+
+for _ in range(numEmpleados):
+    puesto_elegido = random.choice(puestosCatalogo)
+    # doc único (7–8 dígitos)
+    while True:
+        valor_doc = str(faker.random_int(min=1_000_000, max=99_999_999))
+        if valor_doc not in empleados_doc_ids:
+            empleados_doc_ids.add(valor_doc)
+            break
+
+    nombre = faker.name()
+    fecha_contratacion = faker.date_between(start_date="-10y", end_date="today").strftime("%Y-%m-%d")
+
+    empleado = {
+        "Puesto": puesto_elegido["Nombre"],    
+        "ValorDocumentoIdentidad": valor_doc,
+        "Nombre": nombre,
+        "FechaContratacion": fecha_contratacion
+    }
+    empleados.append(empleado)
+
+    ET.SubElement(empleados_elem, "empleado", empleado)
+
+# ---------------------------------------------------
+#  movimientos de prueba, seran de 1 a 3 por empleado
+# ---------------------------------------------------
+
+movimientos_elem = ET.SubElement(root, "Movimientos")
+tipos_mov_nombres = [t["Nombre"] for t in tiposMovimientosCatalogo]
+usuarios_nombres = [u["Nombre"] for u in usuariosCatalogo]
+tiposMovId = [p["Id"] for p in tiposMovimientosCatalogo]  
+
+
+for emp in empleados:
+    fecha_emp = datetime.date.fromisoformat(emp["FechaContratacion"])
+    for _ in range(random.randint(1, 3)):
+        tipo = random.choice(tipos_mov_nombres)
+
+        # fecha del movimiento no antes de la contratación
+        delta = random.randint(0, max(1, (datetime.date.today() - fecha_emp).days))
+        fecha_mov = faker.date_between_dates(
+            date_start=datetime.date(2025,1,1),
+            date_end=datetime.date(2025,12,31)
+        )
+        fecha_str = fecha_mov.isoformat()
+
+        # hora aleatoria para PostTime el mismo día de 'Fecha'
+        hh = random.randint(0, 23)
+        mm = random.randint(0, 59)
+        ss = random.randint(0, 59)
+        post_time = f"{fecha_str} {hh:02d}:{mm:02d}:{ss:02d}"
+
+        ET.SubElement(movimientos_elem, "movimiento", {
+            "ValorDocId": emp["ValorDocumentoIdentidad"],
+            "IdTipoMovimiento": random.choice(tipos_mov_nombres),
+            "Fecha": fecha_str,
+            "Monto": str(random.randint(1, 5)),
+            "PostByUser": random.choice(usuarios_nombres),  # <- ahora del catálogo
+            "PostInIP": faker.ipv4(),
+            "PostTime": post_time
+        })
+# ---------------------------------------------------
+#  Serializado
+# ---------------------------------------------------
 tree = ET.ElementTree(root)
 output_file = "archivoDatos.xml"
 tree.write(output_file, encoding="utf-8", xml_declaration=True)
-
 print(f"Archivo XML generado exitosamente: {output_file}")
