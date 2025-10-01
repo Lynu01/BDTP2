@@ -4,29 +4,31 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
+@Table(name = "Empleado") 
 public class Empleado {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id") 
     private Long id;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_puesto", referencedColumnName = "id")
+    @JoinColumn(name = "IdPuesto", referencedColumnName = "id") 
     private Puesto puesto;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "ValorDocumentoIdentidad", nullable = false, unique = true) 
     private String valorDocumentoIdentidad;
 
-    @Column(nullable = false)
+    @Column(name = "Nombre", nullable = false) 
     private String nombre;
 
-    @Column(nullable = false)
+    @Column(name = "FechaContratacion", nullable = false) 
     private LocalDate fechaContratacion;
 
-    @Column(nullable = false)
+    @Column(name = "SaldoVacaciones", nullable = false) 
     private Double saldoVacaciones;
 
-    @Column(nullable = false)
+    @Column(name = "EsActivo", nullable = false) 
     private Boolean esActivo;
 
     // Constructores
@@ -43,7 +45,7 @@ public class Empleado {
         this.esActivo = esActivo;
     }
 
-    // Getters y Setters
+  
     public Long getId() {
         return id;
     }
