@@ -63,17 +63,17 @@ usuariosCatalogo = [
 ]
 
 erroresCatalogo = [
-    {"Codigo": "50001", "Descripcion": "Username no existe"},
-    {"Codigo": "50002", "Descripcion": "Password no existe"},
-    {"Codigo": "50003", "Descripcion": "Login deshabilitado"},
-    {"Codigo": "50004", "Descripcion": "Empleado con ValorDocumentoIdentidad ya existe en inserción"},
-    {"Codigo": "50005", "Descripcion": "Empleado con mismo nombre ya existe en inserción"},
-    {"Codigo": "50006", "Descripcion": "Empleado con ValorDocumentoIdentidad ya existe en actualizacion"},
-    {"Codigo": "50007", "Descripcion": "Empleado con mismo nombre ya existe en actualización"},
-    {"Codigo": "50008", "Descripcion": "Error de base de datos"},
-    {"Codigo": "50009", "Descripcion": "Nombre de empleado no alfabético"},
-    {"Codigo": "50010", "Descripcion": "Valor de documento de identidad no alfabético"},
-    {"Codigo": "50011", "Descripcion": "Monto del movimiento rechazado pues si se aplicar el saldo seria negativo."},
+    {"Id": "1","Codigo": "50001", "Descripcion": "Username no existe"},
+    {"Id": "2","Codigo": "50002", "Descripcion": "Password no existe"},
+    {"Id": "3","Codigo": "50003", "Descripcion": "Login deshabilitado"},
+    {"Id": "4","Codigo": "50004", "Descripcion": "Empleado con ValorDocumentoIdentidad ya existe en inserción"},
+    {"Id": "5","Codigo": "50005", "Descripcion": "Empleado con mismo nombre ya existe en inserción"},
+    {"Id": "6","Codigo": "50006", "Descripcion": "Empleado con ValorDocumentoIdentidad ya existe en actualizacion"},
+    {"Id": "7","Codigo": "50007", "Descripcion": "Empleado con mismo nombre ya existe en actualización"},
+    {"Id": "8","Codigo": "50008", "Descripcion": "Error de base de datos"},
+    {"Id": "9","Codigo": "50009", "Descripcion": "Nombre de empleado no alfabético"},
+    {"Id": "10","Codigo": "50010", "Descripcion": "Valor de documento de identidad no alfabético"},
+    {"Id": "11","Codigo": "50011", "Descripcion": "Monto del movimiento rechazado pues si se aplicar el saldo seria negativo."},
 ]
 
 catalogos = [
@@ -152,10 +152,10 @@ for emp in empleados:
 
         ET.SubElement(movimientos_elem, "movimiento", {
             "ValorDocId": emp["ValorDocumentoIdentidad"],
-            "IdTipoMovimiento": random.choice(tipos_mov_nombres),
+            "IdTipoMovimiento": random.choice(tiposMovId),
             "Fecha": fecha_str,
             "Monto": str(random.randint(1, 5)),
-            "PostByUser": random.choice(usuarios_nombres),  # <- ahora del catálogo
+            "PostByUser": random.choice(usuarios_nombres), 
             "PostInIP": faker.ipv4(),
             "PostTime": post_time
         })
