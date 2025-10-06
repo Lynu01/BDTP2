@@ -1,4 +1,6 @@
 package com.example.demo.entidades;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -6,14 +8,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "tipo_movimiento")
+@Table(name = "TipoMovimiento")
 public class TipoMovimiento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
     private Long id;
 
+    @Column(name = "Nombre")
     private String nombre;
+
+    @Column(name = "TipoAccion")
     private String tipoAccion; 
 
     // Constructores

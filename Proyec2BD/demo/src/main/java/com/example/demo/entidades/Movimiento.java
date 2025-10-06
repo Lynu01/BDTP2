@@ -4,34 +4,35 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "movimiento")
+@Table(name = "Movimiento")
 public class Movimiento {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "valor_doc_id", referencedColumnName = "valorDocumentoIdentidad")
+    @JoinColumn(name = "idEmpleado", referencedColumnName = "Id")
     private Empleado empleado; 
 
     @ManyToOne
-    @JoinColumn(name = "id_tipo_movimiento", referencedColumnName = "id")
+    @JoinColumn(name = "idTipoMovimiento", referencedColumnName = "Id")
     private TipoMovimiento tipoMovimiento;
 
-    @Column(name = "fecha")
+    @Column(name = "Fecha")
     private LocalDateTime fecha;
 
-    @Column(name = "monto")
+    @Column(name = "Monto")
     private Double monto;
 
-    @Column(name = "post_by_user")
+    @Column(name = "IdPostByUser")
     private String postByUser;
 
-    @Column(name = "post_in_ip")
+    @Column(name = "PostInIP")
     private String postInIP;
 
-    @Column(name = "post_time")
+    @Column(name = "PostTime")
     private LocalDateTime postTime;
 
     // Getters y Setters
