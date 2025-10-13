@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE dbo.sp_EliminarEmpleado
+CREATE OR ALTER PROCEDURE dbo.sp_EliminarEmpleado -- Tener cuidado con el nombre
 (
     @inValorDocumentoIdentidad NVARCHAR(30),
     @inPostByUser NVARCHAR(50),
@@ -28,7 +28,7 @@ BEGIN
 
         IF @IdEmpleado IS NULL
         BEGIN
-            -- Registro en Bitácora: empleado no encontrado
+            -- Registro en Bitï¿½cora: empleado no encontrado
             INSERT INTO dbo.BitacoraEvento (
                 IdTipoEvento,
                 Descripcion,
@@ -37,8 +37,8 @@ BEGIN
                 PostTime
             )
             VALUES (
-                9, -- Eliminación no exitosa
-                'No se encontró empleado para eliminar. Documento: ' + @inValorDocumentoIdentidad,
+                9, -- Eliminaciï¿½n no exitosa
+                'No se encontrï¿½ empleado para eliminar. Documento: ' + @inValorDocumentoIdentidad,
                 (SELECT Id FROM dbo.Usuario WHERE Username = @inPostByUser),
                 @inIP,
                 GETDATE()
@@ -49,7 +49,7 @@ BEGIN
             RETURN;
         END
 
-        -- Borrado lógico
+        -- Borrado lï¿½gico
         UPDATE dbo.Empleado
         SET 
             EsActivo = 0,
@@ -58,7 +58,7 @@ BEGIN
             PostTime = GETDATE()
         WHERE Id = @IdEmpleado;
 
-        -- Registro en Bitácora: éxito
+        -- Registro en Bitï¿½cora: ï¿½xito
         INSERT INTO dbo.BitacoraEvento (
             IdTipoEvento,
             Descripcion,
@@ -67,7 +67,7 @@ BEGIN
             PostTime
         )
         VALUES (
-            10, -- Eliminación exitosa
+            10, -- Eliminaciï¿½n exitosa
             'Empleado eliminado. Documento: ' + @inValorDocumentoIdentidad + ', Nombre: ' + @NombreEmpleado,
             (SELECT Id FROM dbo.Usuario WHERE Username = @inPostByUser),
             @inIP,
