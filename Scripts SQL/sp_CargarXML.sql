@@ -1,8 +1,11 @@
-USE [T02BASES25]
+/****** Object:  StoredProcedure [dbo].[sp_CargarDatosDesdeXML]    Script Date: 10/15/2025 12:35:54 AM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
 GO
 
-
-CREATE OR ALTER PROCEDURE dbo.sp_CargarDatosDesdeXML
+-- Paso 1: Crear o Alterar el Procedimiento Almacenado con la versión corregida.
+ALTER   PROCEDURE [dbo].[sp_CargarDatosDesdeXML]
 (
     @inXmlData XML,
     @outResultCode INT OUTPUT
@@ -104,4 +107,3 @@ BEGIN
 
     SET NOCOUNT OFF;
 END;
-GO

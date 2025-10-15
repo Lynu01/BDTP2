@@ -108,8 +108,10 @@
                 <td th:text="${emp.nombrePuesto}"></td>
                 <td th:text="${emp.saldoVacaciones}"></td>
                 <td class="actions-cell">
-                    <a th:href="@{/empleados/editar/{id}(id=${emp.id})}" class="button-link action-button">Editar</a>
                     
+                    <a th:href="@{/empleados/consultar/{id}(id=${emp.id})}" class="button-link" style="background-color: #555;">Consultar</a>
+                    <a th:href="@{/empleados/editar/{id}(id=${emp.id})}" class="button-link action-button">Editar</a>
+                    <a th:href="@{/empleados/{id}/movimientos(id=${emp.id})}" class="button-link mov-button">Movimientos</a>
                     <!-- ENLACE A MOVIMIENTOS (R5) POR CADA EMPLEADO -->
                     <a th:href="@{/empleados/{id}/movimientos(id=${emp.id})}" class="button-link mov-button">Movimientos</a>
 

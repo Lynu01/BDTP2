@@ -16,10 +16,9 @@ import java.util.stream.Collectors;
 public class EmpleadoService {
 
     @Autowired
-    private EntityManager entityManager; // Herramienta avanzada para interactuar con la BD
+    private EntityManager entityManager;
 
     public List<EmpleadoDTO> listarEmpleadosConFiltro(String filtro) {
-        // Asegurarnos de que el filtro no sea nulo para pasarlo al SP
         String filtroSP = (filtro == null) ? "" : filtro;
 
         try {
@@ -30,26 +29,54 @@ public class EmpleadoService {
                     .registerStoredProcedureParameter("outResultCode", Integer.class, ParameterMode.OUT)
                     
                     .setParameter("inFiltro", filtroSP)
-                    .setParameter("inIP", "127.0.0.1") // IP de ejemplo (esto se mejora con sesiones de usuario)
-                    .setParameter("inPostByUser", "David"); // Usuario de ejemplo
+                    .setParameter("inIP", "127.0.0.1")
+                    .setParameter("inPostByUser", "David");
 
-            // Ejecutamos la consulta y obtenemos los resultados
             @SuppressWarnings("unchecked")
             List<Object[]> resultados = query.getResultList();
 
-            // Convertimos la lista de resultados crudos en nuestra lista de "Fichas de Empleado" (DTOs)
+            // ESTA ES LA LÍNEA CORREGIDA
+            // Ahora pasamos el BigDecimal directamente, sin convertirlo.
             return resultados.stream().map(r -> new EmpleadoDTO(
                     ((Number) r[0]).longValue(),      // Id
                     (String) r[1],                      // Nombre
                     (String) r[2],                      // ValorDocumentoIdentidad
                     (String) r[3],                      // NombrePuesto
-                    ((BigDecimal) r[4]).doubleValue()   // SaldoVacaciones
+                    (BigDecimal) r[4]                   // SaldoVacaciones (se pasa como BigDecimal)
             )).collect(Collectors.toList());
 
         } catch (Exception e) {
-            // En caso de un error en la base de datos, imprimimos el error y devolvemos una lista vacía
             e.printStackTrace();
             return Collections.emptyList();
+        }
+    }
+
+    public EmpleadoDTO consultarEmpleadoPorDocumento(String documento) {
+        try {
+            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("dbo.sp_ConsultarEmpleado")
+                .registerStoredProcedureParameter("inValorDocumentoIdentidad", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("inIP", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("inPostByUser", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("outResultCode", Integer.class, ParameterMode.OUT)
+                
+                .setParameter("inValorDocumentoIdentidad", documento)
+                .setParameter("inIP", "127.0.0.1")
+                .setParameter("inPostByUser", "David");
+
+            @SuppressWarnings("unchecked")
+            List<Object[]> resultados = query.getResultList();
+
+            if (resultados.isEmpty()) {
+                return null;
+            }
+
+            Object[] r = resultados.get(0);
+            // El método de consulta ya estaba correcto, no necesita cambios.
+            return new EmpleadoDTO(0L, (String) r[1], (String) r[0], (String) r[2], (BigDecimal) r[3]);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

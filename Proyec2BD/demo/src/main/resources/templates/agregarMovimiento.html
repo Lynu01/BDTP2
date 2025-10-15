@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Agregar Movimiento</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7fc; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .container { max-width: 500px; width: 100%; }
+        .form-container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1, .employee-info { text-align: center; color: #020B45; }
+        .employee-info { margin-bottom: 20px; font-size: 18px; background-color: #eef; padding: 15px; border-radius: 8px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        .error-message { color: #D8000C; background-color: #FFD2D2; border: 1px solid #D8000C; border-radius: 8px; padding: 10px; text-align: center; margin-bottom: 20px; }
+        .back-link { display: block; text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="form-container">
+        <h1>Registrar Movimiento</h1>
+        <div class="employee-info">
+            <div th:text="${empleado.nombre}"></div>
+            <div>Cédula: <span th:text="${empleado.valorDocumentoIdentidad}"></span></div>
+            <div>Saldo Actual: <span th:text="${empleado.saldoVacaciones}"></span></div>
+        </div>
+
+        <div th:if="${param.error == '50011'}" class="error-message">Error: El monto del débito es mayor al saldo actual.</div>
+        <div th:if="${param.error != null and param.error != '50011'}" class="error-message">Ocurrió un error inesperado.</div>
+
+        <form th:action="@{/movimientos/guardar}" method="POST">
+            <input type="hidden" name="empleadoId" th:value="${empleado.id}" />
+
+            <div class="form-group">
+                <label for="idTipoMovimiento">Tipo de Movimiento:</label>
+                <select id="idTipoMovimiento" name="idTipoMovimiento" required>
+                    <option value="" disabled selected>-- Seleccione un tipo --</option>
+                    <option th:each="tipo : ${tiposMovimiento}"
+                            th:value="${tipo.id}"
+                            th:text="${tipo.nombre}"></option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="monto">Monto (días):</label>
+                <input type="number" id="monto" name="monto" step="0.5" min="0.5" required>
+            </div>
+            <button type="submit">Guardar Movimiento</button>
+        </form>
+        <a th:href="@{/empleados/{id}/movimientos(id=${empleado.id})}" class="back-link">Cancelar y Volver</a>
+    </div>
+</div>
+</body>
+</html>

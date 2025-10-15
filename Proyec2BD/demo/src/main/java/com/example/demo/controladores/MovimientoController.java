@@ -1,53 +1,68 @@
 package com.example.demo.controladores;
+
 import com.example.demo.entidades.Empleado;
-import com.example.demo.entidades.Movimiento;
 import com.example.demo.repositorios.EmpleadoRepository;
 import com.example.demo.repositorios.MovimientoRepository;
+import com.example.demo.servicios.MovimientoService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import java.util.List;
+
 @Controller
 public class MovimientoController {
     @Autowired
     private EmpleadoRepository empleadoRepository;
     @Autowired
     private MovimientoRepository movimientoRepository;
-    @GetMapping("/movimientos/buscar")
-    public String buscarEmpleadoPorDocumento(@RequestParam(name = "documentoIdentidad", required = false) String documentoIdentidad, Model model) {
-        if (documentoIdentidad == null || documentoIdentidad.isEmpty()) {
-            model.addAttribute("error", "El documento de identidad es requerido.");
-            return "movimientos";
-        }
-        Empleado empleado = empleadoRepository.findByValorDocumentoIdentidad(documentoIdentidad);
-        if (empleado != null) {
-            List<Movimiento> movimientos = movimientoRepository.findByEmpleado(empleado);
-            model.addAttribute("empleado", empleado);
-            model.addAttribute("movimientos", movimientos);
-        } else {
-            model.addAttribute("empleado", null);
-            model.addAttribute("error", "Empleado no encontrado.");
-        }
-        return "movimientos";
+    @Autowired
+    private MovimientoService movimientoService;
+
+    // MÉTODO PARA MOSTRAR EL FORMULARIO
+    @GetMapping("/empleados/{empleadoId}/movimientos/nuevo")
+    public String mostrarFormularioMovimiento(@PathVariable("empleadoId") Long empleadoId, Model model) {
+        
+        Empleado empleado = empleadoRepository.findById(empleadoId)
+                .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado: " + empleadoId));
+        
+        model.addAttribute("empleado", empleado);
+        model.addAttribute("tiposMovimiento", movimientoService.obtenerTiposMovimiento());
+        
+        return "agregarMovimiento";
     }
 
-    @GetMapping("/movimientos/agregar")
-    public String agregarMovimiento(Model model) {
-        List<Empleado> empleados = empleadoRepository.findAll();
-        List<Movimiento> Movimiento = movimientoRepository.findAll();
-        model.addAttribute("empleados", empleados); 
-        model.addAttribute("tiposMovimiento", Movimiento); 
-        model.addAttribute("movimiento", new Movimiento()); 
-
-        return "formularioMovimiento"; 
-    }
-
+    // MÉTODO PARA GUARDAR EL MOVIMIENTO
     @PostMapping("/movimientos/guardar")
-    public String guardarMovimiento(Movimiento movimiento) {
-        movimientoRepository.save(movimiento);
-        return "redirect:/movimientos/agregar"; 
+    public String guardarMovimiento(
+            @RequestParam("empleadoId") Long empleadoId,
+            @RequestParam("idTipoMovimiento") Integer idTipoMovimiento,
+            @RequestParam("monto") Double monto,
+            HttpServletRequest request) {
+
+        Empleado empleado = empleadoRepository.findById(empleadoId)
+                .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado: " + empleadoId));
+
+        String ip = request.getRemoteAddr();
+        String usuarioActual = "David"; // Temporal
+
+        Integer resultCode = movimientoRepository.sp_InsertarMovimiento(
+            empleado.getValorDocumentoIdentidad(),
+            idTipoMovimiento,
+            monto,
+            usuarioActual,
+            ip
+        );
+
+        if (resultCode != null && resultCode == 0) {
+            // Éxito: Volvemos a la lista de movimientos de ese empleado
+            return "redirect:/empleados/" + empleadoId + "/movimientos";
+        } else {
+            // Error: Volvemos al formulario con un código de error
+            return "redirect:/empleados/" + empleadoId + "/movimientos/nuevo?error=" + resultCode;
+        }
     }
 }

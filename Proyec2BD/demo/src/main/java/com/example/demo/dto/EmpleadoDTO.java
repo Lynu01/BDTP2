@@ -1,8 +1,6 @@
 package com.example.demo.dto;
 
-// Esta clase es un simple contenedor para mostrar los datos en la tabla.
-// No está conectada a la base de datos directamente.
-
+import java.math.BigDecimal;
 
 public class EmpleadoDTO {
 
@@ -12,16 +10,24 @@ public class EmpleadoDTO {
     private String nombrePuesto;
     private Double saldoVacaciones;
 
-    // Constructor para facilitar la creación de objetos desde el Servicio
-    public EmpleadoDTO(Long id, String nombre, String valorDocumentoIdentidad, String nombrePuesto, Double saldoVacaciones) {
+    // ESTE ES EL CONSTRUCTOR CORREGIDO
+    public EmpleadoDTO(Long id, String nombre, String valorDocumentoIdentidad, String nombrePuesto, BigDecimal saldoVacacionesBD) {
         this.id = id;
         this.nombre = nombre;
         this.valorDocumentoIdentidad = valorDocumentoIdentidad;
         this.nombrePuesto = nombrePuesto;
-        this.saldoVacaciones = saldoVacaciones;
+
+        // --- LA LÍNEA MÁGICA ---
+        // Aquí hacemos la conversión explícita de BigDecimal a Double.
+        // También añadimos una comprobación para evitar un error si el valor de la base de datos fuera nulo.
+        if (saldoVacacionesBD != null) {
+            this.saldoVacaciones = saldoVacacionesBD.doubleValue();
+        } else {
+            this.saldoVacaciones = 0.0;
+        }
     }
 
-    // Getters que Thymeleaf usará para mostrar los datos en el HTML
+    // Getters
     public Long getId() { return id; }
     public String getNombre() { return nombre; }
     public String getValorDocumentoIdentidad() { return valorDocumentoIdentidad; }

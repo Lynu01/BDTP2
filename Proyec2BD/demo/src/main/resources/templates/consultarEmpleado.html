@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Consulta de Empleado</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7fc; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .details-container { background: white; padding: 30px 40px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 450px; }
+        h1 { color: #020B45; text-align: center; border-bottom: 2px solid #eee; padding-bottom: 15px; }
+        .detail-item { font-size: 18px; margin-bottom: 15px; }
+        .detail-item strong { color: #333; min-width: 200px; display: inline-block;}
+        .back-link { display: inline-block; text-align: center; margin-top: 20px; background-color: #777; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none;}
+    </style>
+</head>
+<body>
+<div class="details-container">
+    <h1>Detalles del Empleado</h1>
+    <div th:if="${empleado != null}">
+        <div class="detail-item"><strong>Nombre Completo:</strong> <span th:text="${empleado.nombre}"></span></div>
+        <div class="detail-item"><strong>Documento de Identidad:</strong> <span th:text="${empleado.valorDocumentoIdentidad}"></span></div>
+        <div class="detail-item"><strong>Puesto:</strong> <span th:text="${empleado.nombrePuesto}"></span></div>
+        <div class="detail-item"><strong>Saldo de Vacaciones:</strong> <span th:text="${empleado.saldoVacaciones}"></span></div>
+    </div>
+    <div th:if="${empleado == null}">
+        <p>No se pudo cargar la información del empleado.</p>
+    </div>
+    <a href="/empleados" class="back-link">Volver a la lista</a>
+</div>
+</body>
+</html>
