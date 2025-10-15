@@ -155,6 +155,15 @@
         <div class="form-group">
             <a href="/registro">¿No tienes cuenta? Regístrate aquí</a>
         </div>
+        
+        <div th:if="${param.error == 'invalido'}" style="color: red; margin-bottom: 10px;">
+        Usuario o contraseña incorrectos.
+        </div>
+
+        <!-- Esta cochinada no se quiere ver-->
+        <div th:if="${param.error == 'bloqueado'}" style="color: red; margin-bottom: 10px;">
+            Demasiados intentos de login, intente de nuevo dentro de 10 minutos.
+        </div>
     </form>
 
 </body>
