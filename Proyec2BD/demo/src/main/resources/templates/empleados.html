@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Empleados</title>
+    <title>Lista de Empleados</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,112 +11,119 @@
             margin: 0;
             padding: 20px;
         }
-
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
         h1 {
-            color: #4CAF50;
+            color: #020B45; /* Color más corporativo */
             text-align: center;
             margin-bottom: 30px;
         }
-        button {
+        button, .button-link {
             background-color: #4CAF50;
-            color: white;
+            color: white !important; /* Importante para sobreescribir estilos de 'a' */
             border: none;
             padding: 10px 15px;
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
+            text-decoration: none; /* Asegura que los enlaces no estén subrayados */
+            display: inline-block;
         }
-
-        button:hover {
+        button:hover, .button-link:hover {
             background-color: #45a049;
         }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-
         th, td {
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
-
         th {
             background-color: #4CAF50;
             color: white;
         }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        tr:hover { background-color: #e8f5e9; }
+        
+        .action-button { background-color: #008CBA; }
+        .action-button:hover { background-color: #007bb5; }
+        
+        .mov-button { background-color: #ff9800; }
+        .mov-button:hover { background-color: #f57c00; }
 
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
+        .delete-button { background-color: #f44336; }
+        .delete-button:hover { background-color: #e53935; }
 
-        tr:hover {
-            background-color: #e8f5e9;
-        }
-        .action-button {
-            background-color: #008CBA;
-        }
+        .actions-cell form { display: inline; }
+        .actions-cell .button-link, .actions-cell button { font-size: 14px; padding: 8px 12px; }
 
-        .action-button:hover {
-            background-color: #007bb5;
-        }
+        .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .filter-form input { padding: 9px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
 
-        .delete-button {
-            background-color: #f44336;
-        }
-
-        .delete-button:hover {
-            background-color: #e53935;
-        }
-        form {
-            display: inline;
-        }
     </style>
 </head>
 <body>
-    <h1>Lista de Empleados</h1>
-    <a href="/empleados/nuevo" style="text-decoration: none;">
-        <button>Agregar Empleado</button>
-    </a>
+<div class="container">
+    <h1>Gestión de Empleados</h1>
 
-    <a href="/movimientos/buscar" style="text-decoration: none;">
-        <button>Ver movimientos</button>
-    </a>
+    <div class="header-controls">
+        <!-- FORMULARIO DE FILTRO PARA R2 -->
+        <div class="filter-form">
+            <form th:action="@{/empleados}" method="GET">
+                <input type="text" name="filtro" placeholder="Buscar por nombre o cédula..." th:value="${filtroActual}" size="30" />
+                <button type="submit">Filtrar</button>
+                <a th:href="@{/empleados}" class="button-link" style="background-color: #777;">Limpiar</a>
+            </form>
+        </div>
+        <a href="/empleados/nuevo" class="button-link">Agregar Empleado</a>
+    </div>
+
     <table>
         <thead>
             <tr>
-                <th>ID</th>
+                <!-- COLUMNAS ACTUALIZADAS PARA COINCIDIR CON EL EmpleadoDTO -->
                 <th>Nombre</th>
-                <th>Valor Documento Identidad</th>
-                <th>Fecha Contratación</th>
-                <th>Saldo Vacaciones</th>
-                <th>Activo</th>
+                <th>Documento de Identidad</th>
                 <th>Puesto</th>
+                <th>Saldo de Vacaciones</th>
                 <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="empleado : ${empleados}">
-                <td th:text="${empleado.id}"></td>
-                <td th:text="${empleado.nombre}"></td>
-                <td th:text="${empleado.valorDocumentoIdentidad}"></td>
-                <td th:text="${empleado.fechaContratacion}"></td>
-                <td th:text="${empleado.saldoVacaciones}"></td>
-                <td th:text="${empleado.esActivo ? 'Sí' : 'No'}"></td>
-                <td th:text="${empleado.puesto.nombre}"></td>
-                <td>
-                    <a th:href="@{/empleados/editar/{id}(id=${empleado.id})}">
-                        <button class="action-button">Editar</button>
-                    </a>
+            <!--
+            AHORA SE ITERA SOBRE LOS DTOs.
+            Las variables como 'emp.nombrePuesto' coinciden con los campos del DTO.
+            -->
+            <tr th:each="emp : ${empleados}">
+                <td th:text="${emp.nombre}"></td>
+                <td th:text="${emp.valorDocumentoIdentidad}"></td>
+                <td th:text="${emp.nombrePuesto}"></td>
+                <td th:text="${emp.saldoVacaciones}"></td>
+                <td class="actions-cell">
+                    <a th:href="@{/empleados/editar/{id}(id=${emp.id})}" class="button-link action-button">Editar</a>
+                    
+                    <!-- ENLACE A MOVIMIENTOS (R5) POR CADA EMPLEADO -->
+                    <a th:href="@{/empleados/{id}/movimientos(id=${emp.id})}" class="button-link mov-button">Movimientos</a>
 
-                    <form th:action="@{/empleados/eliminar/{id}(id=${empleado.id})}" method="post" style="display:inline;">
+                    <form th:action="@{/empleados/eliminar/{id}(id=${emp.id})}" method="post">
                         <button type="submit" class="delete-button" onclick="return confirm('¿Estás seguro de eliminar a este empleado?')">Eliminar</button>
                     </form>
                 </td>
             </tr>
+            <!-- Mensaje para cuando no hay resultados -->
+            <tr th:if="${#lists.isEmpty(empleados)}">
+                <td colspan="5" style="text-align:center;">No se encontraron empleados con el filtro aplicado.</td>
+            </tr>
         </tbody>
     </table>
+</div>
 </body>
 </html>
