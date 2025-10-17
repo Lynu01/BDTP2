@@ -1,0 +1,30 @@
+El bloqueo es por (usuario, IP).
+Si “user2/@IP1” se bloquea, solo ese par queda en cooldown. “user1/@IP1” o “user2/@IP2” no quedan bloqueados.
+
+No desactives el botón global. La UI debe:
+
+Tomar username e ip actuales.
+
+Llamar sp_CheckLoginThrottle(username, ip, …) antes de enviar credenciales.
+
+Si devuelve 50021 + outIsBlocked=1, muestra el mensaje y no llames a sp_Login.
+
+Si devuelve 0, sí llamás a sp_Login.
+
+¿Se desbloquea solo? Sí. No hay bandera que “alguien” tenga que apagar.
+
+sp_CheckLoginThrottle mira la marca THROTTLE en BitacoraEvento.
+
+Si pasaron 10 minutos desde el último THROTTLE para ese (usuario, ip), ya no está bloqueado y devuelve 0.
+
+Flujo recomendado en frontend (por intento)
+
+sp_CheckLoginThrottle(u, ip) → si 50021, mostrar “Demasiados intentos, intente en X min” y no seguir.
+
+Si 0, llamar sp_Login(u, p, ip):
+
+Si password mala → 50002, y queda registrada una “falla real”.
+
+Cuando acumula 5 fallas en 5 min, el siguiente check activará THROTTLE (bloqueo por 10 min).
+
+Cualquier intento durante el cooldown: sp_CheckLoginThrottle devuelve 50021
