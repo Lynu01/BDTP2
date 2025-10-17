@@ -123,6 +123,7 @@ for _ in range(numEmpleados):
 
 # ---------------------------------------------------
 #  movimientos de prueba, seran de 1 a 3 por empleado
+#  se añadieron 30 mas, esto por petición del profe
 # ---------------------------------------------------
 
 movimientos_elem = ET.SubElement(root, "Movimientos")
