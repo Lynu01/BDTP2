@@ -184,7 +184,7 @@ public class EmpleadoController {
         // 3. Pasamos el empleado y la lista de movimientos al modelo
         model.addAttribute("empleado", empleado);
         model.addAttribute("movimientos", movimientos);
-        
+         System.out.println("-----> Número de movimientos encontrados para " + empleado.getNombre() + ": " + movimientos.size() + " <-----");
         // 4. ESTA ES LA LÍNEA QUE FALTABA
         // Le decimos a Spring que renderice la página "listarMovimientos.html"
         return "listarMovimientos";
