@@ -1,17 +1,25 @@
 package com.example.demo.controladores;
 
+import com.example.demo.dto.ThrottleResultDTO;      // 1. Importar el nuevo DTO
 import com.example.demo.entidades.User;
 import com.example.demo.repositorios.UserRepository;
-import jakarta.servlet.http.HttpServletRequest; // Importante añadir esto
+import com.example.demo.servicios.LoginService;      // 2. Importar el nuevo Servicio
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class LoginController {
 
     @Autowired
     private UserRepository userRepository;
+
+    // 3. Inyectar el nuevo LoginService
+    @Autowired
+    private LoginService loginService;
 
     @GetMapping("/")
     public String mostrarLogin() {
@@ -21,34 +29,32 @@ public class LoginController {
     @PostMapping("/login")
     public String login(@RequestParam String nombre, @RequestParam String clave, HttpServletRequest request) {
         
-        // Obtenemos la dirección IP del usuario. Es fundamental para la bitácora y el bloqueo.
         String ip = request.getRemoteAddr();
 
-        // --- INICIA LÓGICA CORRECTA PARA R1 ---
+        // --- INICIA LA LÓGICA CORREGIDA ---
 
-        // 1. VERIFICAR BLOQUEO: Primero, le preguntamos a nuestro "vigilante" (el SP)
-        // si el usuario tiene demasiados intentos fallidos.
-        Integer intentosFallidos = userRepository.sp_BloqueoUsuario(nombre, ip);
-
-        // El PDF dice que el bloqueo es con MÁS de 5 intentos. Lo ajustamos a >= 5 para que sea más seguro.
-        if (intentosFallidos != null && intentosFallidos >= 5) {
-            // Si está bloqueado, lo redirigimos con un mensaje de error específico.
+        // 4. VERIFICAR BLOQUEO: Llamamos al nuevo servicio, que es más robusto.
+        ThrottleResultDTO throttleResult = loginService.checkLoginThrottle(nombre, ip);
+        
+        if (throttleResult.isBlocked()) {
+            // Si está bloqueado, redirigimos con el error.
             return "redirect:/?error=bloqueado";
         }
 
-        // 2. INTENTAR LOGIN: Si no está bloqueado, le pedimos al "portero" (sp_Login) que verifique.
+        // 5. INTENTAR LOGIN: Si no está bloqueado, procedemos a llamar al SP de Login.
         Integer resultCode = userRepository.sp_Login(nombre, clave, ip);
 
-        // 3. EVALUAR RESPUESTA: El SP nos devuelve un código. 0 es éxito.
+        // 6. EVALUAR RESPUESTA:
         if (resultCode != null && resultCode == 0) {
-            // Éxito. El usuario puede entrar al sistema.
+            // Éxito, redirigimos a la lista de empleados.
             return "redirect:/empleados";
         } else {
-            // Error. Credenciales inválidas. Lo mandamos de vuelta al login.
+            // Error (credenciales inválidas), redirigimos de vuelta al login.
             return "redirect:/?error=invalido";
         }
     }
 
+    // --- MÉTODOS DE REGISTRO (SIN CAMBIOS) ---
     @GetMapping("/registro")
     public String mostrarRegistro() {
         return "Registrarse"; 

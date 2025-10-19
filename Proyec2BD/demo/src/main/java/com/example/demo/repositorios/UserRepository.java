@@ -3,6 +3,7 @@ package com.example.demo.repositorios;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
+import java.util.Map; 
 
 import com.example.demo.entidades.User;
 
@@ -25,10 +26,24 @@ public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * Llama al procedimiento almacenado para verificar si un usuario está bloqueado
      * por exceso de intentos fallidos. Devuelve el número de intentos.
+     *
+    *@Procedure(name = "dbo.sp_BloqueoUsuario", outputParameterName = "outIntentosFallidos")
+    *Integer sp_BloqueoUsuario(
+        *@Param("inUsername") String username,
+        *@Param("inIP") String ip
+    *);
+    **/
+
+    /**
+     * ---- NUEVO MÉTODO ----
+     * Llama al procedimiento que verifica si un usuario está bloqueado
+     * y devuelve el estado y el tiempo restante.
+     * Los parámetros de salida se devuelven en un Map.
      */
-    @Procedure(name = "dbo.sp_BloqueoUsuario", outputParameterName = "outIntentosFallidos")
-    Integer sp_BloqueoUsuario(
+    @Procedure(name = "dbo.sp_CheckThrottle")
+    Map<String, Object> sp_CheckThrottle(
         @Param("inUsername") String username,
         @Param("inIP") String ip
     );
+
 }
