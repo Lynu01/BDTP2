@@ -167,3 +167,7 @@ tree = ET.ElementTree(root)
 output_file = "archivoDatos.xml"
 tree.write(output_file, encoding="utf-8", xml_declaration=True)
 print(f"Archivo XML generado exitosamente: {output_file}")
+
+
+# Para ultimas versiones del xml se utilizo una pagina web que nos permitia editar ahi mismo el xml, 
+# asi evitando volver a correr el script generando nuevos datos por completo
