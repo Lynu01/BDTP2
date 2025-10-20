@@ -2,7 +2,7 @@ package com.example.demo.controladores;
 
 import com.example.demo.dto.EmpleadoDTO;
 import com.example.demo.entidades.Empleado;
-import com.example.demo.entidades.Puesto;
+//import com.example.demo.entidades.Puesto;
 import com.example.demo.repositorios.EmpleadoRepository;
 import com.example.demo.repositorios.PuestoRepository;
 import com.example.demo.servicios.EmpleadoService; // Importar el nuevo servicio
@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam; // Importar Request
 import java.util.List; // Importar List
 
 import com.example.demo.dto.MovimientoDTO; // Importar el nuevo DTO
-import com.example.demo.servicios.MovimientoService; // Importar el nuevo Servicio
+//import com.example.demo.servicios.MovimientoService; // Importar el nuevo Servicio
 
 @Controller
 public class EmpleadoController {
