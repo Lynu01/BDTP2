@@ -31,7 +31,7 @@ public class MovimientoController {
         return "agregarMovimiento";
     }
 
-    // Cancelar inserción → solo banner
+    // Cancelar inserción, redirigir a lista movimientos
     @GetMapping("/empleados/{empleadoId}/movimientos/cancelar")
     public String cancelarInsercionMovimiento(@PathVariable("empleadoId") Long empleadoId,
                                               RedirectAttributes ra) {
@@ -39,7 +39,7 @@ public class MovimientoController {
         return "redirect:/empleados/" + empleadoId + "/movimientos";
     }
 
-    // GUARDAR MOVIMIENTO
+    // guardar movimiento
     @PostMapping("/movimientos/guardar")
     public String guardarMovimiento(@RequestParam("empleadoId") Long empleadoId,
                                     @RequestParam("idTipoMovimiento") Integer idTipoMovimiento,
@@ -70,8 +70,8 @@ public class MovimientoController {
                 .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado: " + empleadoId))
                 .getValorDocumentoIdentidad();
 
-        // Fecha: dejamos que el SP ponga hoy si va null. Si quieres forzar hoy:
-        Date fecha = null; // o Date.valueOf(LocalDate.now());
+        // fecha null sin especificar
+        Date fecha = null; 
 
         Integer resultCode = movimientoRepository.sp_InsertarMovimiento(
             valorDoc,            // inValorDocId

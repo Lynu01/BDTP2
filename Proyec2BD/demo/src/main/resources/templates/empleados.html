@@ -25,7 +25,6 @@
         }
         .container { max-width: 1200px; margin: auto; position: relative; }
 
-        /* Top-right logout widget */
         .top-right {
             position: absolute;
             top: 8px;
@@ -37,8 +36,8 @@
             background-color: var(--logout);
             color: #fff !important;
             border: none;
-            padding: 6px 10px;         /* más pequeño */
-            font-size: 12px;           /* más pequeño */
+            padding: 6px 10px;
+            font-size: 12px;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color .2s ease;
@@ -47,7 +46,7 @@
         .logged-user {
             display: block;
             margin-top: 6px;
-            font-size: 11px;           /* más pequeño */
+            font-size: 11px;
             color: #555;
         }
 
@@ -57,7 +56,6 @@
             margin-bottom: 30px;
         }
 
-        /* Botones */
         button, .button-link {
             background-color: var(--green);
             color: white !important;
@@ -72,7 +70,6 @@
         }
         button:hover, .button-link:hover { background-color: var(--green-hover); }
 
-        /* Tabla */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -84,7 +81,6 @@
         tr:nth-child(even) { background-color: #f2f2f2; }
         tr:hover { background-color: #e8f5e9; }
 
-        /* Colores por acción */
         .action-button { background-color: var(--blue); }
         .action-button:hover { background-color: var(--blue-hover); }
         .mov-button { background-color: var(--orange); }
@@ -98,7 +94,6 @@
         .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .filter-form input { padding: 9px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
 
-        /* Banners */
         .success-message {
             color: #155724; background: #D4EDDA; border: 1px solid #C3E6CB;
             border-radius: 8px; padding: 10px; text-align: center; margin: 10px 0 20px 0;
@@ -136,7 +131,7 @@
         const f = document.createElement('form');
         f.method = 'POST';
         f.action = `/empleados/eliminar/${encodeURIComponent(id)}`;
-        // CSRF opcional
+
         const csrfMeta = document.querySelector('meta[name="_csrf"]');
         const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
         if (csrfMeta && csrfHeader) {
@@ -155,12 +150,8 @@
 <body>
 <div class="container">
 
-    <!-- Logout arriba a la derecha -->
     <div class="top-right">
         <form class="logout-form" action="/logout" method="post">
-            <!-- Si usas Spring Security con CSRF, descomenta esto:
-            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            -->
             <button type="submit" class="logout-btn">Cerrar sesión</button>
         </form>
         <span class="logged-user">Usuario: <strong th:text="${session.usuarioActual} ?: 'Invitado'">Invitado</strong></span>
@@ -168,12 +159,10 @@
 
     <h1>Gestión de Empleados</h1>
 
-    <!-- Banners de mensaje (Flash Attributes desde el controller) -->
     <div th:if="${success}" class="success-message" th:text="${success}">Operación exitosa.</div>
     <div th:if="${warn}" class="warn-message" th:text="${warn}">Aviso.</div>
     <div th:if="${error}" class="error-message" th:text="${error}">Ocurrió un error.</div>
 
-    <!-- Banner amarillo del lado cliente (cuando cancelás desde JS en Eliminar) -->
     <div id="client-warn" class="warn-message" style="display:none;">⚠️ No se eliminó el empleado.</div>
 
     <div class="header-controls">

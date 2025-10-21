@@ -50,8 +50,7 @@ public class LoginController {
             return "redirect:/empleados";
         }
 
-        // 3) Credenciales inválidas → mostrar rojo + amarillo con N, M, K
-        //    OJO: el SP ya dejó el intento; N ya incluye este fallo.
+        // 3) Credenciales inválidas
         AttemptStatsDTO stats = loginService.getAttemptStats(nombre, ip);
         int attempts  = stats.getAttempts5Min();  // N ya incluye el actual, NO sumar +1
         int max       = stats.getMaxAttempts();
@@ -62,7 +61,7 @@ public class LoginController {
                 "Intento " + attempts + " de " + max + " en los últimos 5 minutos. Te quedan "
                         + remaining + " intento(s) antes de bloqueo.");
 
-        // 4) Chequear si con este fallo ya quedó bloqueado para mostrar el rojo de bloqueo
+        // 4) Se chequea si quedó bloqueado tras este intento
         ThrottleResultDTO post = loginService.checkLoginThrottle(nombre, ip);
         if (post.isBlocked()) {
             int secs = Math.max(0, post.getSecondsRemaining());

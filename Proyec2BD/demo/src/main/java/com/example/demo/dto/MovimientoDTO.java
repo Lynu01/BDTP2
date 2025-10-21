@@ -1,10 +1,9 @@
 package com.example.demo.dto;
 
-//import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date; // Importante: usar java.util.Date
+import java.util.Date;
 
 public class MovimientoDTO {
 
@@ -16,21 +15,15 @@ public class MovimientoDTO {
     private String postInIP;
     private LocalDateTime postTime;
 
-    /**
-     * ---- CONSTRUCTOR CORREGIDO ----
-     * Este constructor es más flexible y acepta los tipos de datos genéricos
-     * que vienen de la base de datos (java.util.Date y Number)
-     * para evitar errores de casting.
-     */
     public MovimientoDTO(Date fecha, String tipoMovimiento, Number monto, Number nuevoSaldo,
                          String postByUser, String postInIP, Timestamp postTimeSQL) {
         
-        // Convertimos cualquier tipo de fecha a LocalDate de forma segura
+        // Convertimos cualquier tipo de fecha a LocalDate
         this.fecha = new Timestamp(fecha.getTime()).toLocalDateTime().toLocalDate();
         
         this.tipoMovimiento = tipoMovimiento;
         
-        // El método .doubleValue() funciona tanto para BigDecimal como para Double
+        // usamos doubleValue() para convertir Number a Double
         this.monto = monto.doubleValue();
         this.nuevoSaldo = nuevoSaldo.doubleValue();
         
@@ -39,7 +32,6 @@ public class MovimientoDTO {
         this.postTime = postTimeSQL.toLocalDateTime();
     }
 
-    // --- Getters
     public LocalDate getFecha() { return fecha; }
     public String getTipoMovimiento() { return tipoMovimiento; }
     public Double getMonto() { return monto; }

@@ -94,9 +94,6 @@
 
     <form th:action="@{/empleados/guardar}" method="post">
 
-        <!-- ===========================
-             Mensajes (Flash Attributes)
-             =========================== -->
         <div th:if="${success}" class="success-message" th:text="${success}">
             Operación exitosa.
         </div>
@@ -104,10 +101,6 @@
             Ocurrió un error.
         </div>
 
-        <!-- ====================================================
-             Fallback si usas querystring (?error=50009, etc.)
-             Nota: param.error es lista → usa param.error[0]
-             ==================================================== -->
         <div th:if="${param.error}" class="error-message" th:switch="${param.error[0]}">
             <div th:case="'50004'">Error: Ya existe un empleado con esa cédula.</div>
             <div th:case="'50005'">Error: Ya existe un empleado con ese nombre.</div>
@@ -117,9 +110,6 @@
             <div th:case="*">Error desconocido.</div>
         </div>
 
-        <!-- =======================
-             Campos del formulario
-             ======================= -->
         <div class="form-group">
             <label for="nombre">Nombre Completo:</label>
             <input
@@ -160,7 +150,6 @@
         </div>
     </form>
 
-    <!-- Cancelar: ahora manda los valores para que se tracen en Bitácora (IdTipoEvento=5) -->
     <a href="#" onclick="cancelarConValores(); return false;" class="button-cancel">Cancelar y Volver</a>
 
 </div>

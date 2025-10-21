@@ -10,16 +10,14 @@ public class EmpleadoDTO {
     private String nombrePuesto;
     private Double saldoVacaciones;
 
-    // ESTE ES EL CONSTRUCTOR CORREGIDO
     public EmpleadoDTO(Long id, String nombre, String valorDocumentoIdentidad, String nombrePuesto, BigDecimal saldoVacacionesBD) {
         this.id = id;
         this.nombre = nombre;
         this.valorDocumentoIdentidad = valorDocumentoIdentidad;
         this.nombrePuesto = nombrePuesto;
 
-        // --- LA LÍNEA MÁGICA ---
-        // Aquí hacemos la conversión explícita de BigDecimal a Double.
-        // También añadimos una comprobación para evitar un error si el valor de la base de datos fuera nulo.
+        // Convertir BigDecimal a Double
+        // Se añade una comprobación para evitar un error si el valor de la base de datos fuera nulo.
         if (saldoVacacionesBD != null) {
             this.saldoVacaciones = saldoVacacionesBD.doubleValue();
         } else {

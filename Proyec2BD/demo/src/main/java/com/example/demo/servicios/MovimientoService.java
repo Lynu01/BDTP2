@@ -15,11 +15,7 @@ public class MovimientoService {
     @Autowired
     private EntityManager entityManager;
 
-    /**
-     * ---- MÉTODO CORREGIDO ----
-     * Llama al Stored Procedure y usa el nuevo constructor del MovimientoDTO
-     * para mapear los resultados de forma segura, evitando errores de casting.
-     */
+    // metodo que obtiene movimientos por documento llamando al SP
     public java.util.List<com.example.demo.dto.MovimientoDTO> obtenerMovimientosPorDocumento(
         String documentoIdentidad, String user, String ip) {
     try {
@@ -52,7 +48,6 @@ public class MovimientoService {
     }
 }
 
-// --- NUEVO: insertar movimiento llamando al SP correctamente (con inFecha opcional) ---
 public int insertarMovimiento(String valorDocId,
                               Integer idTipoMovimiento,
                               java.math.BigDecimal monto,
@@ -74,7 +69,6 @@ public int insertarMovimiento(String valorDocId,
         q.setParameter("inMonto", monto);
         q.setParameter("inPostByUser", user);
         q.setParameter("inIP", ip);
-        // Si es null, pásalo como null; el SP usa GETDATE()
         q.setParameter("inFecha", (fechaNullable == null) ? null : java.sql.Date.valueOf(fechaNullable));
 
         q.execute();
@@ -87,7 +81,6 @@ public int insertarMovimiento(String valorDocId,
 }
 
 
-    // --- Método obtenerTiposMovimiento (sin cambios) ---
     public List<TipoMovimientoDTO> obtenerTiposMovimiento() {
         StoredProcedureQuery query = entityManager.createStoredProcedureQuery("dbo.sp_ListarTiposMovimiento");
         

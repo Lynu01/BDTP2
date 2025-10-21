@@ -19,9 +19,9 @@ public interface MovimientoRepository extends JpaRepository<Movimiento, Long> {
     Integer sp_InsertarMovimiento(
         @Param("inValorDocId") String valorDocId,
         @Param("inIdTipoMovimiento") Integer idTipoMovimiento,
-        @Param("inFecha") Date fecha,                // ← va ANTES que monto
+        @Param("inFecha") Date fecha,
         @Param("inMonto") BigDecimal monto,
-        @Param("inUserName") String userName,        // ← NO es inPostByUser
+        @Param("inUserName") String userName,
         @Param("inIP") String ip
     );
 }

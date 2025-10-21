@@ -12,13 +12,7 @@ public class BitacoraService {
     @Autowired
     private EntityManager em;
 
-    /**
-     * Registra un evento en la bitácora usando el SP dbo.sp_Bitacora_Add
-     * @param idTipoEvento Id del catálogo (en tu caso, 7 = intento/cancelación de update)
-     * @param descripcion  Texto descriptivo
-     * @param user         Username responsable
-     * @param ip           IP origen
-     */
+    // Método para registrar un evento en la bitácora usando el SP
     public void logEvento(int idTipoEvento, String descripcion, String user, String ip) {
         try {
             StoredProcedureQuery q = em.createStoredProcedureQuery("dbo.sp_Bitacora_Add")
@@ -32,9 +26,9 @@ public class BitacoraService {
                 .setParameter("inPostByUser", user)
                 .setParameter("inIP", ip);
 
-            q.execute(); // ignoramos el out si no lo ocupás
+            q.execute();
         } catch (Exception ignored) {
-            // No reventamos la UX por un fallo de bitácora. La DB ya registra errores graves en DBError.
+            // La DB ya registra errores graves en DBError, acá no se hace nada más
         }
     }
 }

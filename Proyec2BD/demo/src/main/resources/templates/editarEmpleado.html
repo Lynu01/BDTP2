@@ -52,11 +52,9 @@
 
     <form th:action="@{/empleados/actualizar}" method="post">
 
-        <!-- ===== Banners por Flash Attributes ===== -->
         <div th:if="${success}" class="success-message" th:text="${success}">Actualización exitosa.</div>
         <div th:if="${error}" class="error-message" th:text="${error}">Ocurrió un error.</div>
 
-        <!-- ===== Fallback por ?error=XXXX (param.error es lista) ===== -->
         <div th:if="${param.error}" class="error-message" th:switch="${param.error[0]}">
             <div th:case="'50006'">Error: La nueva cédula ya pertenece a otro empleado.</div>
             <div th:case="'50007'">Error: El nuevo nombre ya pertenece a otro empleado.</div>
@@ -66,7 +64,6 @@
             <div th:case="*">Error desconocido.</div>
         </div>
 
-        <!-- ===== Hidden necesarios para el SP ===== -->
         <input type="hidden" name="id" th:value="${empleado.id}" />
         <input type="hidden" name="valorDocumentoIdentidadOriginal" th:value="${empleado.valorDocumentoIdentidad}" />
 
@@ -108,7 +105,6 @@
             </select>
         </div>
 
-        <!-- ===== Campos de solo lectura ===== -->
         <div class="form-group">
             <label for="fechaContratacion">Fecha Contratación (No editable):</label>
             <input type="date" id="fechaContratacion" name="fechaContratacion"

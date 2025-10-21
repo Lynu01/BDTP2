@@ -37,7 +37,6 @@ public class LoginService {
         }
     }
 
-    // NUEVO: obtiene conteos para UI (intentos en 5m y política)
     public AttemptStatsDTO getAttemptStats(String username, String ip) {
         try {
             StoredProcedureQuery query = entityManager.createStoredProcedureQuery("dbo.sp_GetLoginAttemptStats")
@@ -57,7 +56,7 @@ public class LoginService {
             return new AttemptStatsDTO(attempts, max, rc);
         } catch (Exception e) {
             System.err.println("Error al ejecutar sp_GetLoginAttemptStats: " + e.getMessage());
-            // Fallback razonable: 0 de 5
+            // de 0 a 5 intentos, máximo 5
             return new AttemptStatsDTO(0, 5, 0);
         }
     }
