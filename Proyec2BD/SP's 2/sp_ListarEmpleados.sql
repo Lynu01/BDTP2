@@ -17,7 +17,7 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        -- Verificar si el filtro es solo n�meros (documento) o letras (nombre)
+        -- Verificar si el filtro es solo numeros (documento) o letras (nombre)
         IF (@inFiltro IS NULL OR LTRIM(RTRIM(@inFiltro)) = '')
         BEGIN
             -- Sin filtro: listar todos los empleados
@@ -34,7 +34,7 @@ BEGIN
         END
         ELSE IF (@inFiltro NOT LIKE '%[^0-9]%')
         BEGIN
-            -- Filtro solo n�meros: buscar por documento de identidad
+            -- Filtro solo numeros: buscar por documento de identidad
             SELECT 
                 e.Id
                 ,e.Nombre
@@ -47,7 +47,7 @@ BEGIN
               AND e.ValorDocumentoIdentidad LIKE '%' + @inFiltro + '%'
             ORDER BY e.Nombre ASC;
 
-            -- Registrar consulta con filtro de c�dula
+            -- Registrar consulta con filtro de cedula
             INSERT INTO dbo.BitacoraEvento (
                 IdTipoEvento
                 ,Descripcion
@@ -56,8 +56,8 @@ BEGIN
                 ,PostTime
             )
             VALUES (
-                12 -- Consulta con filtro de c�dula
-                ,'Filtro de c�dula utilizado: ' + @inFiltro
+                12 -- Consulta con filtro de cedula
+                ,'Filtro de cedula utilizado: ' + @inFiltro
                 ,(SELECT Id FROM dbo.Usuario WHERE Username = @inPostByUser)
                 ,@inIP
                 ,GETDATE()

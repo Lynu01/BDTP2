@@ -17,14 +17,14 @@ BEGIN
     BEGIN TRY
         BEGIN TRANSACTION;
 
-        -- Consulta de errores por c�digo
+        -- Consulta de errores por código
         SELECT 
-             Codigo,
-             Descripcion
-        FROM dbo.Error
-        WHERE Codigo = @inCodigo;
+             e.Codigo,
+             e.Descripcion
+        FROM dbo.Error e
+        WHERE e.Codigo = @inCodigo;
 
-        -- Registrar en Bit�cora
+        -- Registrar en Bitácora
         INSERT INTO dbo.BitacoraEvento (
              IdTipoEvento,
              Descripcion,
@@ -33,8 +33,8 @@ BEGIN
              PostTime
         )
         VALUES (
-             11, -- Usamos el evento 11: "Consulta con filtro de nombre" (lo adaptamos para consulta de errores)
-             'Consulta de error. C�digo: ' + CAST(@inCodigo AS NVARCHAR(10)),
+             11, -- Usamos el evento 11: "Consulta con filtro de nombre"
+             'Consulta de error. Codigo: ' + CAST(@inCodigo AS NVARCHAR(10)),
              (SELECT Id FROM dbo.Usuario WHERE Username = @inPostByUser),
              @inIP,
              GETDATE()

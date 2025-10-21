@@ -1,5 +1,5 @@
 CREATE OR ALTER PROCEDURE dbo.sp_Bitacora_Add
-  @inIdTipoEvento INT,         -- 1..14 según tu tabla
+  @inIdTipoEvento INT,         -- 1..14 segï¿½n tu tabla
   @inDescripcion  NVARCHAR(MAX),
   @inUserName     NVARCHAR(50),-- se resuelve a Usuario.Id
   @inIP           NVARCHAR(50),
@@ -9,7 +9,9 @@ BEGIN
   SET NOCOUNT ON;
   BEGIN TRY
     DECLARE @idUsuario INT;
-    SELECT @idUsuario = u.Id FROM dbo.Usuario u WHERE u.Username = @inUserName;
+    SELECT @idUsuario = u.Id 
+	FROM dbo.Usuario u 
+	WHERE u.Username = @inUserName;
 
     IF @idUsuario IS NULL BEGIN SET @outResultCode = 50001; RETURN; END
 

@@ -12,7 +12,9 @@ BEGIN
         SET @inValorDocumentoIdentidad = LTRIM(RTRIM(@inValorDocumentoIdentidad));
 
         DECLARE @idUsuario INT;
-        SELECT @idUsuario = u.Id FROM dbo.Usuario u WHERE u.Username = @inPostByUser;
+        SELECT @idUsuario = u.Id 
+        FROM dbo.Usuario u 
+        WHERE u.Username = @inPostByUser;
 
         IF @idUsuario IS NULL
         BEGIN

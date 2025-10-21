@@ -19,11 +19,11 @@ BEGIN
         DECLARE @userId INT;
 
         -- Obtener el Id del usuario
-        SELECT @userId = Id
-        FROM dbo.Usuario
-        WHERE Username = @inUsername;
+        SELECT @userId = u.Id
+        FROM dbo.Usuario u
+        WHERE u.Username = @inUsername;
 
-        -- Insertar en la Bit�cora
+        -- Insertar en la Bitácora
         INSERT INTO dbo.BitacoraEvento (
              IdTipoEvento
             ,Descripcion

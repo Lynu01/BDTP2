@@ -14,7 +14,9 @@ BEGIN
     SET NOCOUNT ON;
 
     DECLARE @idUsuario INT;
-    SELECT @idUsuario = Id FROM dbo.Usuario WHERE Username = @inUsername;
+    SELECT @idUsuario = u.Id 
+    FROM dbo.Usuario u
+    WHERE u.Username = @inUsername;
 
     -- Si el usuario no existe, no puede estar bloqueado.
     IF @idUsuario IS NULL
@@ -25,11 +27,11 @@ BEGIN
 
     -- Contar los logins no exitosos (IdTipoEvento = 2) en los últimos 5 minutos
     SELECT @outIntentosFallidos = COUNT(*)
-    FROM dbo.BitacoraEvento
-    WHERE IdPostByUser = @idUsuario
-      AND PostInIP = @inIP
-      AND IdTipoEvento = 2 -- 2 es el ID para "Login No Exitoso"
-      AND PostTime >= DATEADD(MINUTE, -5, GETDATE());
+    FROM dbo.BitacoraEvento b
+    WHERE b.IdPostByUser = @idUsuario
+      AND b.PostInIP = @inIP
+      AND b.IdTipoEvento = 2 -- 2 es el ID para "Login No Exitoso"
+      AND b.PostTime >= DATEADD(MINUTE, -5, GETDATE());
 
     SET NOCOUNT OFF;
 END;

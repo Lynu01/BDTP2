@@ -234,7 +234,7 @@ public class EmpleadoController {
         String ip = request.getRemoteAddr();
 
         if (emp == null) {
-            ra.addFlashAttribute("warn", "⚠️ No se eliminó el empleado (no encontrado).");
+            ra.addFlashAttribute("warn", "No se eliminó el empleado (no encontrado).");
             return "redirect:/empleados";
         }
 
@@ -243,15 +243,15 @@ public class EmpleadoController {
         );
 
         if (rc == null) {
-            ra.addFlashAttribute("warn", "⚠️ No se eliminó el empleado (respuesta nula del SP).");
+            ra.addFlashAttribute("warn", "No se eliminó el empleado (respuesta nula del SP).");
             return "redirect:/empleados";
         }
 
         switch (rc) {
-            case 0      -> ra.addFlashAttribute("success", "✅ Se eliminó correctamente.");
-            case 50012  -> ra.addFlashAttribute("warn", "⚠️ No se eliminó el empleado (no encontrado o inactivo).");
+            case 0      -> ra.addFlashAttribute("success", "Se eliminó correctamente.");
+            case 50012  -> ra.addFlashAttribute("warn", "No se eliminó el empleado (no encontrado o inactivo).");
             case 50008  -> ra.addFlashAttribute("error", "Ocurrió un error en la base de datos.");
-            default     -> ra.addFlashAttribute("warn", "⚠️ No se eliminó el empleado. (Código " + rc + ")");
+            default     -> ra.addFlashAttribute("warn", "No se eliminó el empleado. (Código " + rc + ")");
         }
         return "redirect:/empleados";
     }

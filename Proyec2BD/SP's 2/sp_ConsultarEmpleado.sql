@@ -23,12 +23,12 @@ BEGIN
         -- Validar existencia
         IF NOT EXISTS (
             SELECT 1
-            FROM dbo.Empleado
-            WHERE ValorDocumentoIdentidad = @inValorDocumentoIdentidad
-              AND EsActivo = 1
+            FROM dbo.Empleado e
+            WHERE e.ValorDocumentoIdentidad = @inValorDocumentoIdentidad
+              AND e.EsActivo = 1
         )
         BEGIN
-            -- Registrar fallo en bit�cora
+            -- Registrar fallo en bitácora
             INSERT INTO dbo.BitacoraEvento (
                  IdTipoEvento
                 ,Descripcion
