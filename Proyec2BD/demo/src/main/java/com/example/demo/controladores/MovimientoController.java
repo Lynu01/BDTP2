@@ -71,15 +71,15 @@ public class MovimientoController {
                 .getValorDocumentoIdentidad();
 
         // Fecha: dejamos que el SP ponga hoy si va null. Si quieres forzar hoy:
-        Date fecha = null; // oppure: Date.valueOf(LocalDate.now());
+        Date fecha = null; // o Date.valueOf(LocalDate.now());
 
         Integer resultCode = movimientoRepository.sp_InsertarMovimiento(
-                valorDoc,
-                idTipoMovimiento,
-                monto,
-                usuarioActual,
-                ip,
-                fecha
+            valorDoc,            // inValorDocId
+            idTipoMovimiento,    // inIdTipoMovimiento
+            fecha,               // inFecha
+            monto,               // inMonto
+            usuarioActual,       // inUserName
+            ip                   // inIP
         );
 
         if (Integer.valueOf(0).equals(resultCode)) {

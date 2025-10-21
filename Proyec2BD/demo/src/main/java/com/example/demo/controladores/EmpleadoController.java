@@ -116,11 +116,11 @@ public class EmpleadoController {
         }
 
         String msg;
-        if (Integer.valueOf(50004).equals(resultCode))      msg = "Ya existe un empleado con esa cédula. (50004)";
-        else if (Integer.valueOf(50005).equals(resultCode)) msg = "Ya existe un empleado con ese nombre. (50005)";
-        else if (Integer.valueOf(50009).equals(resultCode)) msg = "Nombre inválido. Solo letras, espacios o guion. (50009)";
-        else if (Integer.valueOf(50010).equals(resultCode)) msg = "La cédula debe ser solo numérica. (50010)";
-        else if (Integer.valueOf(50008).equals(resultCode)) msg = "Error de datos o base de datos. (50008)";
+        if (Integer.valueOf(50004).equals(resultCode))      msg = "Ya existe un empleado con esa cédula.";
+        else if (Integer.valueOf(50005).equals(resultCode)) msg = "Ya existe un empleado con ese nombre.";
+        else if (Integer.valueOf(50009).equals(resultCode)) msg = "Nombre inválido. Solo letras, espacios o guion.";
+        else if (Integer.valueOf(50010).equals(resultCode)) msg = "La cédula debe ser solo numérica.";
+        else if (Integer.valueOf(50008).equals(resultCode)) msg = "Error de datos o base de datos.";
         else                                               msg = "No se pudo crear el empleado. (Código " + resultCode + ")";
         ra.addFlashAttribute("error", msg);
         return "redirect:/empleados/nuevo";
@@ -165,11 +165,11 @@ public class EmpleadoController {
         }
 
         String msg;
-        if (Integer.valueOf(50006).equals(resultCode))      msg = "La nueva cédula ya pertenece a otro empleado. (50006)";
-        else if (Integer.valueOf(50007).equals(resultCode)) msg = "El nuevo nombre ya pertenece a otro empleado. (50007)";
-        else if (Integer.valueOf(50009).equals(resultCode)) msg = "Nombre inválido. Solo letras, espacios o guion. (50009)";
-        else if (Integer.valueOf(50010).equals(resultCode)) msg = "La cédula debe ser solo numérica. (50010)";
-        else if (Integer.valueOf(50008).equals(resultCode)) msg = "Error de datos/relación o base de datos. (50008)";
+        if (Integer.valueOf(50006).equals(resultCode))      msg = "La nueva cédula ya pertenece a otro empleado.";
+        else if (Integer.valueOf(50007).equals(resultCode)) msg = "El nuevo nombre ya pertenece a otro empleado.";
+        else if (Integer.valueOf(50009).equals(resultCode)) msg = "Nombre inválido. Solo letras, espacios o guion.";
+        else if (Integer.valueOf(50010).equals(resultCode)) msg = "La cédula debe ser solo numérica.";
+        else if (Integer.valueOf(50008).equals(resultCode)) msg = "Error de datos/relación o base de datos.";
         else                                               msg = "No se pudo actualizar el empleado. (Código " + resultCode + ")";
         ra.addFlashAttribute("error", msg);
         return "redirect:/empleados/editar/" + id;
@@ -250,7 +250,7 @@ public class EmpleadoController {
         switch (rc) {
             case 0      -> ra.addFlashAttribute("success", "✅ Se eliminó correctamente.");
             case 50012  -> ra.addFlashAttribute("warn", "⚠️ No se eliminó el empleado (no encontrado o inactivo).");
-            case 50008  -> ra.addFlashAttribute("error", "Ocurrió un error en la base de datos. (50008)");
+            case 50008  -> ra.addFlashAttribute("error", "Ocurrió un error en la base de datos.");
             default     -> ra.addFlashAttribute("warn", "⚠️ No se eliminó el empleado. (Código " + rc + ")");
         }
         return "redirect:/empleados";

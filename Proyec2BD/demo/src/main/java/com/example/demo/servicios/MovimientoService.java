@@ -37,14 +37,14 @@ public class MovimientoService {
         java.util.List<Object[]> resultados = query.getResultList();
 
         return resultados.stream().map(r -> new com.example.demo.dto.MovimientoDTO(
-            (java.util.Date)    r[0],  // Fecha
-            (String)            r[1],  // TipoMovimiento
-            (Number)            r[2],  // Monto
-            (Number)            r[3],  // NuevoSaldo
-            (String)            r[4],  // PostByUser
-            (String)            r[5],  // PostInIP
-            (java.sql.Timestamp)r[6]   // PostTime
-        )).collect(java.util.stream.Collectors.toList());
+        (java.util.Date)     r[1],            // Fecha
+        (String)             r[2],            // TipoMovimiento
+        (Number)             r[3],            // Monto
+        (Number)             r[4],            // NuevoSaldo
+        (String)             r[5],            // PostByUser
+        (String)             r[6],            // PostInIP
+        (java.sql.Timestamp) r[7]             // PostTime
+    )).collect(java.util.stream.Collectors.toList());
 
     } catch (Exception e) {
         e.printStackTrace();
