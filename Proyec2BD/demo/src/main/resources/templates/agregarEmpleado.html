@@ -15,41 +15,25 @@
             min-height: 100vh;
         }
 
-        .container {
-            width: 100%;
-            max-width: 600px;
-        }
-
-        h1 {
-            text-align: center;
-            color: #333;
-        }
+        .container { width: 100%; max-width: 600px; }
+        h1 { text-align: center; color: #333; }
 
         form {
             background: #ffffff;
-            padding: 25px 40px; /* Más padding horizontal */
+            padding: 25px 40px;
             border-radius: 10px;
             box-shadow: 0px 0px 15px rgba(0,0,0,0.1);
         }
 
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        input[type="text"],
-        select {
+        input[type="text"], select {
             width: 100%;
             padding: 10px 12px;
             border: 1px solid #ccc;
             border-radius: 5px;
-            box-sizing: border-box; /* Importante para el padding */
+            box-sizing: border-box;
         }
 
         button {
@@ -63,10 +47,7 @@
             width: 100%;
             margin-top: 10px;
         }
-
-        button:hover {
-            background-color: #2980b9;
-        }
+        button:hover { background-color: #2980b9; }
 
         a {
             display: block;
@@ -76,8 +57,7 @@
             text-decoration: none;
             font-weight: bold;
         }
-        
-        /* Estilo para los mensajes de error */
+
         .error-message {
             color: #D8000C;
             background-color: #FFD2D2;
@@ -85,57 +65,104 @@
             border-radius: 8px;
             padding: 10px;
             text-align: center;
-            margin-bottom: 20px; /* Espacio debajo del error */
+            margin-bottom: 20px;
+        }
+        .success-message {
+            color: #155724;
+            background-color: #D4EDDA;
+            border: 1px solid #C3E6CB;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 20px;
         }
     </style>
+
+    <script>
+      // Redirige a /empleados/nuevo/cancelar con los valores actuales (para trazar intento cancelado)
+      function cancelarConValores() {
+        var nombre = document.getElementById('nombre').value || '';
+        var doc    = document.getElementById('valorDocumentoIdentidad').value || '';
+        window.location.href = '/empleados/nuevo/cancelar?nombre='
+          + encodeURIComponent(nombre) + '&doc=' + encodeURIComponent(doc);
+      }
+    </script>
 </head>
 <body>
-    <div class="container">
-        <h1>Agregar Nuevo Empleado</h1>
+<div class="container">
+    <h1>Agregar Nuevo Empleado</h1>
 
-        <form th:action="@{/empleados/guardar}" method="post">
+    <form th:action="@{/empleados/guardar}" method="post">
 
-            <!-- Bloques para mostrar los mensajes de error del controlador -->
-            <div th:if="${param.error == '50004'}" class="error-message">
-                Error: Ya existe un empleado con esa cédula.
-            </div>
-            <div th:if="${param.error == '50005'}" class="error-message">
-                Error: Ya existe un empleado con ese nombre.
-            </div>
-            <div th:if="${param.error == '50008'}" class="error-message">
-                Error general de la base de datos. Intente de nuevo.
-            </div>
+        <!-- ===========================
+             Mensajes (Flash Attributes)
+             =========================== -->
+        <div th:if="${success}" class="success-message" th:text="${success}">
+            Operación exitosa.
+        </div>
+        <div th:if="${error}" class="error-message" th:text="${error}">
+            Ocurrió un error.
+        </div>
 
-            <div class="form-group">
-                <label for="nombre">Nombre Completo:</label>
-                <input type="text" id="nombre" name="nombre" required/>
-            </div>
+        <!-- ====================================================
+             Fallback si usas querystring (?error=50009, etc.)
+             Nota: param.error es lista → usa param.error[0]
+             ==================================================== -->
+        <div th:if="${param.error}" class="error-message" th:switch="${param.error[0]}">
+            <div th:case="'50004'">Error: Ya existe un empleado con esa cédula.</div>
+            <div th:case="'50005'">Error: Ya existe un empleado con ese nombre.</div>
+            <div th:case="'50009'">Error: Nombre inválido. Solo letras (con acentos), espacios y guion medio.</div>
+            <div th:case="'50010'">Error: La cédula debe ser solo numérica.</div>
+            <div th:case="'50008'">Error general de la base de datos. Intente de nuevo.</div>
+            <div th:case="*">Error desconocido.</div>
+        </div>
 
-            <div class="form-group">
-                <label for="valorDocumentoIdentidad">Documento de Identidad (Cédula):</label>
-                <input type="text" id="valorDocumentoIdentidad" name="valorDocumentoIdentidad" required pattern="[0-9]+" title="Por favor, ingrese solo números."/>
-            </div>
+        <!-- =======================
+             Campos del formulario
+             ======================= -->
+        <div class="form-group">
+            <label for="nombre">Nombre Completo:</label>
+            <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                required
+                maxlength="100"
+                th:value="${param.nombre != null ? param.nombre[0] : ''}"
+            />
+        </div>
 
-            <div class="form-group">
-                <label for="puesto">Puesto:</label>
-                <!--
-                CAMBIO CLAVE: El 'name' del select ahora es 'idPuesto',
-                que es el nombre del parámetro que espera el controlador.
-                -->
-                <select id="puesto" name="idPuesto" required>
-                    <option value="" disabled selected>-- Seleccione un puesto --</option>
-                    <option th:each="puesto : ${puestos}" 
-                            th:value="${puesto.id}" 
-                            th:text="${puesto.nombre}"></option>
-                </select>
-            </div>
+        <div class="form-group">
+            <label for="valorDocumentoIdentidad">Documento de Identidad (Cédula):</label>
+            <input
+                type="text"
+                id="valorDocumentoIdentidad"
+                name="valorDocumentoIdentidad"
+                required
+                maxlength="30"
+                th:value="${param.valorDocumentoIdentidad != null ? param.valorDocumentoIdentidad[0] : ''}"
+            />
+        </div>
 
-            <div>
-                <button type="submit">Guardar</button>
-            </div>
-        </form>
+        <div class="form-group">
+            <label for="puesto">Puesto:</label>
+            <select id="puesto" name="idPuesto" required>
+                <option value="" disabled selected>-- Seleccione un puesto --</option>
+                <option th:each="puesto : ${puestos}"
+                        th:value="${puesto.id}"
+                        th:text="${puesto.nombre}">
+                </option>
+            </select>
+        </div>
 
-        <a href="/empleados">Volver a la lista de empleados</a>
-    </div>
+        <div>
+            <button type="submit">Guardar</button>
+        </div>
+    </form>
+
+    <!-- Cancelar: ahora manda los valores para que se tracen en Bitácora (IdTipoEvento=5) -->
+    <a href="#" onclick="cancelarConValores(); return false;" class="button-cancel">Cancelar y Volver</a>
+
+</div>
 </body>
 </html>

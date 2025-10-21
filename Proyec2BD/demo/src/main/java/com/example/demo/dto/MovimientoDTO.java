@@ -39,7 +39,7 @@ public class MovimientoDTO {
         this.postTime = postTimeSQL.toLocalDateTime();
     }
 
-    // --- Getters (sin cambios) ---
+    // --- Getters
     public LocalDate getFecha() { return fecha; }
     public String getTipoMovimiento() { return tipoMovimiento; }
     public Double getMonto() { return monto; }

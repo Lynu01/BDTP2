@@ -1,5 +1,6 @@
 package com.example.demo.servicios;
 
+import com.example.demo.dto.AttemptStatsDTO;
 import com.example.demo.dto.ThrottleResultDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.ParameterMode;
@@ -16,30 +17,48 @@ public class LoginService {
     public ThrottleResultDTO checkLoginThrottle(String username, String ip) {
         try {
             StoredProcedureQuery query = entityManager.createStoredProcedureQuery("dbo.sp_CheckThrottle")
-                // --- Parámetros de Entrada (IN) ---
                 .registerStoredProcedureParameter("inUsername", String.class, ParameterMode.IN)
                 .registerStoredProcedureParameter("inIP", String.class, ParameterMode.IN)
-                
-                // --- Parámetros de Salida (OUT) ---
                 .registerStoredProcedureParameter("outIsBlocked", Boolean.class, ParameterMode.OUT)
                 .registerStoredProcedureParameter("outSecondsRemaining", Integer.class, ParameterMode.OUT)
                 .registerStoredProcedureParameter("outResultCode", Integer.class, ParameterMode.OUT)
-                
                 .setParameter("inUsername", username)
                 .setParameter("inIP", ip);
 
             query.execute();
 
-            // Recuperamos los valores de los parámetros de salida
             boolean isBlocked = (Boolean) query.getOutputParameterValue("outIsBlocked");
             int secondsRemaining = (Integer) query.getOutputParameterValue("outSecondsRemaining");
-
             return new ThrottleResultDTO(isBlocked, secondsRemaining);
 
         } catch (Exception e) {
-            System.err.println("Error al ejecutar sp_CheckLoginThrottle: " + e.getMessage());
-            // En caso de error, asumimos que no está bloqueado para no impedir el acceso.
+            System.err.println("Error al ejecutar sp_CheckThrottle: " + e.getMessage());
             return new ThrottleResultDTO(false, 0);
+        }
+    }
+
+    // NUEVO: obtiene conteos para UI (intentos en 5m y política)
+    public AttemptStatsDTO getAttemptStats(String username, String ip) {
+        try {
+            StoredProcedureQuery query = entityManager.createStoredProcedureQuery("dbo.sp_GetLoginAttemptStats")
+                .registerStoredProcedureParameter("inUsername", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("inIP", String.class, ParameterMode.IN)
+                .registerStoredProcedureParameter("outAttempts5Min", Integer.class, ParameterMode.OUT)
+                .registerStoredProcedureParameter("outMaxAttempts", Integer.class, ParameterMode.OUT)
+                .registerStoredProcedureParameter("outResultCode", Integer.class, ParameterMode.OUT)
+                .setParameter("inUsername", username)
+                .setParameter("inIP", ip);
+
+            query.execute();
+
+            int attempts = (Integer) query.getOutputParameterValue("outAttempts5Min");
+            int max      = (Integer) query.getOutputParameterValue("outMaxAttempts");
+            int rc       = (Integer) query.getOutputParameterValue("outResultCode");
+            return new AttemptStatsDTO(attempts, max, rc);
+        } catch (Exception e) {
+            System.err.println("Error al ejecutar sp_GetLoginAttemptStats: " + e.getMessage());
+            // Fallback razonable: 0 de 5
+            return new AttemptStatsDTO(0, 5, 0);
         }
     }
 }

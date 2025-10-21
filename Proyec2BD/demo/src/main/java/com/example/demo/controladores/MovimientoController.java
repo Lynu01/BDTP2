@@ -8,61 +8,97 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.math.BigDecimal;
+import java.sql.Date;
 
 @Controller
 public class MovimientoController {
-    @Autowired
-    private EmpleadoRepository empleadoRepository;
-    @Autowired
-    private MovimientoRepository movimientoRepository;
-    @Autowired
-    private MovimientoService movimientoService;
 
-    // MÉTODO PARA MOSTRAR EL FORMULARIO
+    @Autowired private EmpleadoRepository empleadoRepository;
+    @Autowired private MovimientoRepository movimientoRepository;
+    @Autowired private MovimientoService movimientoService;
+
+    // FORM NUEVO MOVIMIENTO
     @GetMapping("/empleados/{empleadoId}/movimientos/nuevo")
     public String mostrarFormularioMovimiento(@PathVariable("empleadoId") Long empleadoId, Model model) {
-        
         Empleado empleado = empleadoRepository.findById(empleadoId)
                 .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado: " + empleadoId));
-        
         model.addAttribute("empleado", empleado);
         model.addAttribute("tiposMovimiento", movimientoService.obtenerTiposMovimiento());
-        
         return "agregarMovimiento";
     }
 
-    // MÉTODO PARA GUARDAR EL MOVIMIENTO
+    // Cancelar inserción → solo banner
+    @GetMapping("/empleados/{empleadoId}/movimientos/cancelar")
+    public String cancelarInsercionMovimiento(@PathVariable("empleadoId") Long empleadoId,
+                                              RedirectAttributes ra) {
+        ra.addFlashAttribute("warn", "Operación cancelada por el usuario.");
+        return "redirect:/empleados/" + empleadoId + "/movimientos";
+    }
+
+    // GUARDAR MOVIMIENTO
     @PostMapping("/movimientos/guardar")
-    public String guardarMovimiento(
-            @RequestParam("empleadoId") Long empleadoId,
-            @RequestParam("idTipoMovimiento") Integer idTipoMovimiento,
-            @RequestParam("monto") Double monto,
-            HttpServletRequest request) {
+    public String guardarMovimiento(@RequestParam("empleadoId") Long empleadoId,
+                                    @RequestParam("idTipoMovimiento") Integer idTipoMovimiento,
+                                    @RequestParam("monto") String montoStr,
+                                    HttpServletRequest request,
+                                    RedirectAttributes ra) {
 
-        Empleado empleado = empleadoRepository.findById(empleadoId)
-                .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado: " + empleadoId));
+        // Validar monto
+        BigDecimal monto;
+        try {
+            monto = new BigDecimal(montoStr).setScale(2, java.math.RoundingMode.HALF_UP);
+            if (monto.compareTo(BigDecimal.ZERO) <= 0) {
+                ra.addFlashAttribute("warn", "El monto debe ser mayor a 0.");
+                return "redirect:/empleados/" + empleadoId + "/movimientos";
+            }
+        } catch (NumberFormatException ex) {
+            ra.addFlashAttribute("warn", "Monto inválido. Use números y punto decimal (ej: 2.50).");
+            return "redirect:/empleados/" + empleadoId + "/movimientos";
+        }
 
+        // Datos de sesión
+        String usuarioActual = (String) request.getSession().getAttribute("usuarioActual");
+        if (usuarioActual == null || usuarioActual.isBlank()) usuarioActual = "UsuarioScripts";
         String ip = request.getRemoteAddr();
-        String usuarioActual = "David"; // Temporal
+
+        // Cédula del empleado
+        String valorDoc = empleadoRepository.findById(empleadoId)
+                .orElseThrow(() -> new IllegalArgumentException("Empleado no encontrado: " + empleadoId))
+                .getValorDocumentoIdentidad();
+
+        // Fecha: dejamos que el SP ponga hoy si va null. Si quieres forzar hoy:
+        Date fecha = null; // oppure: Date.valueOf(LocalDate.now());
 
         Integer resultCode = movimientoRepository.sp_InsertarMovimiento(
-            empleado.getValorDocumentoIdentidad(),
-            idTipoMovimiento,
-            monto,
-            usuarioActual,
-            ip
+                valorDoc,
+                idTipoMovimiento,
+                monto,
+                usuarioActual,
+                ip,
+                fecha
         );
 
-        if (resultCode != null && resultCode == 0) {
-            // Éxito: Volvemos a la lista de movimientos de ese empleado
+        if (Integer.valueOf(0).equals(resultCode)) {
+            ra.addFlashAttribute("success", "Movimiento insertado exitosamente.");
             return "redirect:/empleados/" + empleadoId + "/movimientos";
-        } else {
-            // Error: Volvemos al formulario con un código de error
-            return "redirect:/empleados/" + empleadoId + "/movimientos/nuevo?error=" + resultCode;
         }
+
+        if (Integer.valueOf(50011).equals(resultCode)) {
+            ra.addFlashAttribute("warn", "No se registró el movimiento: el monto deja el saldo negativo.");
+        } else if (Integer.valueOf(50012).equals(resultCode)) {
+            ra.addFlashAttribute("warn", "Empleado no encontrado o inactivo.");
+        } else if (Integer.valueOf(50001).equals(resultCode)) {
+            ra.addFlashAttribute("warn", "Usuario no válido para registrar el movimiento.");
+        } else if (Integer.valueOf(50008).equals(resultCode)) {
+            ra.addFlashAttribute("error", "Error general de la base de datos.");
+        } else {
+            ra.addFlashAttribute("warn", "No se completó la agregación del movimiento. (Código " + resultCode + ")");
+        }
+
+        return "redirect:/empleados/" + empleadoId + "/movimientos";
     }
 }

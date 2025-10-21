@@ -18,9 +18,16 @@
 <body>
 <div class="container">
     <h1>Historial de Movimientos de Vacaciones</h1>
+    <!-- Banners Flash -->
+    <div th:if="${success}" style="color:#155724;background:#D4EDDA;border:1px solid #C3E6CB;border-radius:8px;padding:10px;text-align:center;margin:10px 0 16px 0;" th:text="${success}">Operación exitosa.</div>
+
+    <div th:if="${warn}" style="color:#856404;background:#FFF3CD;border:1px solid #FFEEBA;border-radius:8px;padding:10px;text-align:center;margin:10px 0 16px 0;" th:text="${warn}">Aviso.</div>
+
+    <div th:if="${error}" style="color:#D8000C;background:#FFD2D2;border:1px solid #D8000C;border-radius:8px;padding:10px;text-align:center;margin:10px 0 16px 0;" th:text="${error}">Error.</div>
+
 
     <div class="employee-details">
-        <div class="detail-item"><strong>Nombre:</strong> <span th.text="${empleado.nombre}"></span></div>
+        <div class="detail-item"><strong>Nombre:</strong> <span th:text="${empleado.nombre}"></span></div>
         <div class="detail-item"><strong>Documento:</strong> <span th:text="${empleado.valorDocumentoIdentidad}"></span></div>
         <div class="detail-item"><strong>Puesto:</strong> <span th:text="${empleado.puesto.nombre}"></span></div>
         <div class="detail-item"><strong>Saldo Actual:</strong> <span th:text="${empleado.saldoVacaciones}"></span> días</div>

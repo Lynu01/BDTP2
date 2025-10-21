@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <title>Lista de Empleados</title>
     <style>
+        :root {
+            --green:#4CAF50;
+            --green-hover:#45a049;
+            --blue:#008CBA;
+            --blue-hover:#007bb5;
+            --orange:#ff9800;
+            --orange-hover:#f57c00;
+            --red:#f44336;
+            --red-hover:#e53935;
+            --logout:#b23b3b;
+            --logout-hover:#962f2f;
+        }
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f7fc;
@@ -11,56 +23,74 @@
             margin: 0;
             padding: 20px;
         }
-        .container {
-            max-width: 1200px;
-            margin: auto;
+        .container { max-width: 1200px; margin: auto; position: relative; }
+
+        /* Top-right logout widget */
+        .top-right {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            text-align: right;
         }
+        .logout-form { display: inline-block; margin: 0; }
+        .logout-btn {
+            background-color: var(--logout);
+            color: #fff !important;
+            border: none;
+            padding: 6px 10px;         /* más pequeño */
+            font-size: 12px;           /* más pequeño */
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color .2s ease;
+        }
+        .logout-btn:hover { background-color: var(--logout-hover); }
+        .logged-user {
+            display: block;
+            margin-top: 6px;
+            font-size: 11px;           /* más pequeño */
+            color: #555;
+        }
+
         h1 {
-            color: #020B45; /* Color más corporativo */
+            color: #020B45;
             text-align: center;
             margin-bottom: 30px;
         }
+
+        /* Botones */
         button, .button-link {
-            background-color: #4CAF50;
-            color: white !important; /* Importante para sobreescribir estilos de 'a' */
+            background-color: var(--green);
+            color: white !important;
             border: none;
             padding: 10px 15px;
             font-size: 16px;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
-            text-decoration: none; /* Asegura que los enlaces no estén subrayados */
+            text-decoration: none;
             display: inline-block;
         }
-        button:hover, .button-link:hover {
-            background-color: #45a049;
-        }
+        button:hover, .button-link:hover { background-color: var(--green-hover); }
+
+        /* Tabla */
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: var(--green); color: white; }
         tr:nth-child(even) { background-color: #f2f2f2; }
         tr:hover { background-color: #e8f5e9; }
-        
-        .action-button { background-color: #008CBA; }
-        .action-button:hover { background-color: #007bb5; }
-        
-        .mov-button { background-color: #ff9800; }
-        .mov-button:hover { background-color: #f57c00; }
 
-        .delete-button { background-color: #f44336; }
-        .delete-button:hover { background-color: #e53935; }
+        /* Colores por acción */
+        .action-button { background-color: var(--blue); }
+        .action-button:hover { background-color: var(--blue-hover); }
+        .mov-button { background-color: var(--orange); }
+        .mov-button:hover { background-color: var(--orange-hover); }
+        .delete-button { background-color: var(--red); }
+        .delete-button:hover { background-color: var(--red-hover); }
 
         .actions-cell form { display: inline; }
         .actions-cell .button-link, .actions-cell button { font-size: 14px; padding: 8px 12px; }
@@ -68,17 +98,90 @@
         .header-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .filter-form input { padding: 9px; border-radius: 5px; border: 1px solid #ccc; font-size: 16px; }
 
+        /* Banners */
+        .success-message {
+            color: #155724; background: #D4EDDA; border: 1px solid #C3E6CB;
+            border-radius: 8px; padding: 10px; text-align: center; margin: 10px 0 20px 0;
+        }
+        .error-message {
+            color: #D8000C; background: #FFD2D2; border: 1px solid #D8000C;
+            border-radius: 8px; padding: 10px; text-align: center; margin: 10px 0 20px 0;
+        }
+        .warn-message {
+            color: #8a6d3b; background: #fff4e5; border: 1px solid #ffecb5;
+            border-radius: 8px; padding: 10px; text-align: center; margin: 10px 0 20px 0;
+        }
     </style>
 </head>
+
+<script>
+  function showClientWarn(msg) {
+    const el = document.getElementById('client-warn');
+    if (!el) return;
+    el.textContent = msg || '⚠️ No se eliminó el empleado.';
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function deleteEmpleado(btn) {
+    const id  = btn.dataset.id;
+    const doc = btn.dataset.doc;
+
+    fetch(`/empleados/${encodeURIComponent(doc)}/borrar-intento`, { method: 'GET' })
+      .catch(() => {})
+      .finally(() => {
+        const ok = confirm(`¿Estás seguro de eliminar al empleado con documento ${doc}?`);
+        if (!ok) { showClientWarn('⚠️ No se eliminó el empleado.'); return; }
+        const f = document.createElement('form');
+        f.method = 'POST';
+        f.action = `/empleados/eliminar/${encodeURIComponent(id)}`;
+        // CSRF opcional
+        const csrfMeta = document.querySelector('meta[name="_csrf"]');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]');
+        if (csrfMeta && csrfHeader) {
+          const inp = document.createElement('input');
+          inp.type = 'hidden';
+          inp.name = csrfHeader.getAttribute('content');
+          inp.value = csrfMeta.getAttribute('content');
+          f.appendChild(inp);
+        }
+        document.body.appendChild(f);
+        f.submit();
+      });
+  }
+</script>
+
 <body>
 <div class="container">
+
+    <!-- Logout arriba a la derecha -->
+    <div class="top-right">
+        <form class="logout-form" action="/logout" method="post">
+            <!-- Si usas Spring Security con CSRF, descomenta esto:
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            -->
+            <button type="submit" class="logout-btn">Cerrar sesión</button>
+        </form>
+        <span class="logged-user">Usuario: <strong th:text="${session.usuarioActual} ?: 'Invitado'">Invitado</strong></span>
+    </div>
+
     <h1>Gestión de Empleados</h1>
 
+    <!-- Banners de mensaje (Flash Attributes desde el controller) -->
+    <div th:if="${success}" class="success-message" th:text="${success}">Operación exitosa.</div>
+    <div th:if="${warn}" class="warn-message" th:text="${warn}">Aviso.</div>
+    <div th:if="${error}" class="error-message" th:text="${error}">Ocurrió un error.</div>
+
+    <!-- Banner amarillo del lado cliente (cuando cancelás desde JS en Eliminar) -->
+    <div id="client-warn" class="warn-message" style="display:none;">⚠️ No se eliminó el empleado.</div>
+
     <div class="header-controls">
-        <!-- FORMULARIO DE FILTRO PARA R2 -->
+        <!-- FORMULARIO DE FILTRO -->
         <div class="filter-form">
-            <form th:action="@{/empleados}" method="GET">
-                <input type="text" name="filtro" placeholder="Buscar por nombre o cédula..." th:value="${filtroActual}" size="30" />
+            <form th:action="@{/empleados}" method="GET" style="display:inline;">
+                <input type="text" name="filtro" placeholder="Buscar por nombre o cédula..."
+                       th:value="${filtroActual}" size="30" />
                 <button type="submit">Filtrar</button>
                 <a th:href="@{/empleados}" class="button-link" style="background-color: #777;">Limpiar</a>
             </form>
@@ -89,7 +192,6 @@
     <table>
         <thead>
             <tr>
-                <!-- COLUMNAS ACTUALIZADAS PARA COINCIDIR CON EL EmpleadoDTO -->
                 <th>Nombre</th>
                 <th>Documento de Identidad</th>
                 <th>Puesto</th>
@@ -98,29 +200,24 @@
             </tr>
         </thead>
         <tbody>
-            <!--
-            AHORA SE ITERA SOBRE LOS DTOs.
-            Las variables como 'emp.nombrePuesto' coinciden con los campos del DTO.
-            -->
             <tr th:each="emp : ${empleados}">
                 <td th:text="${emp.nombre}"></td>
                 <td th:text="${emp.valorDocumentoIdentidad}"></td>
                 <td th:text="${emp.nombrePuesto}"></td>
-                <td th:text="${emp.saldoVacaciones}"></td>
+                <td th:text="${#numbers.formatDecimal(emp.saldoVacaciones, 1, 2)}"></td>
                 <td class="actions-cell">
-                    
                     <a th:href="@{/empleados/consultar/{id}(id=${emp.id})}" class="button-link" style="background-color: #555;">Consultar</a>
                     <a th:href="@{/empleados/editar/{id}(id=${emp.id})}" class="button-link action-button">Editar</a>
                     <a th:href="@{/empleados/{id}/movimientos(id=${emp.id})}" class="button-link mov-button">Movimientos</a>
-                    <!-- ENLACE A MOVIMIENTOS (R5) POR CADA EMPLEADO -->
-                    <a th:href="@{/empleados/{id}/movimientos(id=${emp.id})}" class="button-link mov-button">Movimientos</a>
-
                     <form th:action="@{/empleados/eliminar/{id}(id=${emp.id})}" method="post">
-                        <button type="submit" class="delete-button" onclick="return confirm('¿Estás seguro de eliminar a este empleado?')">Eliminar</button>
+                        <button type="button" class="delete-button"
+                                th:attr="data-id=${emp.id},data-doc=${emp.valorDocumentoIdentidad}"
+                                onclick="deleteEmpleado(this)">
+                            Eliminar
+                        </button>
                     </form>
                 </td>
             </tr>
-            <!-- Mensaje para cuando no hay resultados -->
             <tr th:if="${#lists.isEmpty(empleados)}">
                 <td colspan="5" style="text-align:center;">No se encontraron empleados con el filtro aplicado.</td>
             </tr>

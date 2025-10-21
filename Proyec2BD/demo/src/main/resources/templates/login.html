@@ -151,19 +151,17 @@
         <input type="password" id="clave" name="clave" required>
 
         <button type="submit">Ingresar</button>
-
-        <div class="form-group">
-            <a href="/registro">¿No tienes cuenta? Regístrate aquí</a>
-        </div>
         
-        <div th:if="${param.error == 'invalido'}" style="color: red; margin-bottom: 10px;">
-        Usuario o contraseña incorrectos.
-        </div>
+        <!-- BANNERS (Flash Attributes) -->
+        <div th:if="${error}" style="color:#D8000C;background:#FFD2D2;border:1px solid #D8000C;border-radius:8px;padding:10px;text-align:center;margin-bottom:10px;"
+            th:text="${error}">Usuario o contraseña inválidos.</div>
 
-        <!-- Esta cochinada no se quiere ver-->
-        <div th:if="${param.error == 'bloqueado'}" style="color: red; margin-bottom: 10px;">
-            Demasiados intentos de login, intente de nuevo dentro de 10 minutos.
-        </div>
+        <div th:if="${warn}" style="color:#856404;background:#FFF3CD;border:1px solid #FFEEBA;border-radius:8px;padding:10px;text-align:center;margin-bottom:10px;"
+            th:text="${warn}">Intento 1 de 5…</div>
+
+        <div th:if="${info}" style="color:#0c5460;background:#d1ecf1;border:1px solid #bee5eb;border-radius:8px;padding:10px;text-align:center;margin-bottom:10px;"
+            th:text="${info}">Sesión cerrada.</div>
+
     </form>
 
 </body>
